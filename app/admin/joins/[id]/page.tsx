@@ -13,6 +13,8 @@ import { Loader2, Calendar, DollarSign, Users, ArrowLeft } from "lucide-react";
 import { getCourses } from "@/lib/db/courses";
 import { getJoin, updateJoin } from "@/lib/db/joins";
 import { Course } from "@/lib/courses-data";
+import { JoinParticipant } from "@/lib/db/participants";
+import { User } from "lucide-react";
 
 const formSchema = z.object({
     courseId: z.string().min(1, "골프장을 선택해주세요."),
@@ -41,7 +43,7 @@ export default function EditJoinPage() {
     const [initialLoading, setInitialLoading] = useState(true);
     const [courses, setCourses] = useState<Course[]>([]);
 
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>({
+    const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm<FormValues>({
         resolver: zodResolver(formSchema) as any,
     });
 
@@ -83,6 +85,47 @@ export default function EditJoinPage() {
         };
         fetchData();
     }, [joinId, router, setValue]);
+
+    const [participants, setParticipants] = useState<JoinParticipant[]>([]);
+
+    useEffect(() => {
+        const fetchParticipants = async () => {
+            if (!joinId) return;
+            try {
+                const { getJoinParticipants } = await import("@/lib/db/participants");
+                const data = await getJoinParticipants(joinId);
+                setParticipants(data);
+            } catch (error) {
+                console.error("Error fetching participants:", error);
+            }
+        };
+        fetchParticipants();
+    }, [joinId]);
+
+    const handleStatusUpdate = async (userId: string, status: 'approved' | 'rejected') => {
+        if (!confirm(`${status === 'approved' ? '승인' : '거절'}하시겠습니까?`)) return;
+
+        try {
+            const { updateParticipantStatus } = await import("@/lib/db/participants");
+            await updateParticipantStatus(joinId, userId, status);
+
+            // Update local state
+            setParticipants(prev => prev.map(p =>
+                p.userId === userId ? { ...p, status } : p
+            ));
+
+            // If approved, increment member count in form
+            if (status === 'approved') {
+                const current = parseInt(getValues("currentMembers") as any || "0");
+                setValue("currentMembers", current + 1);
+            }
+
+            alert("상태가 변경되었습니다.");
+        } catch (error) {
+            console.error("Error updating status:", error);
+            alert("오류가 발생했습니다.");
+        }
+    };
 
     const onSubmit = async (data: FormValues) => {
         setLoading(true);
@@ -246,6 +289,74 @@ export default function EditJoinPage() {
                                 placeholder="조인 관련 추가 설명을 입력하세요."
                                 {...register("description")}
                             />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="mt-6">
+                    <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <Users className="w-5 h-5 text-primary" /> 신청자 관리
+                        </CardTitle>
+                        <CardDescription>
+                            조인 신청 내역을 확인하고 승인 또는 거절할 수 있습니다.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {participants.length === 0 ? (
+                                <div className="text-center text-gray-500 py-8 border rounded-md bg-gray-50">
+                                    아직 신청자가 없습니다.
+                                </div>
+                            ) : (
+                                participants.map((participant) => (
+                                    <div key={`${participant.joinId}_${participant.userId}`} className="flex items-center justify-between p-4 border rounded-lg bg-white">
+                                        <div className="flex items-center gap-4">
+                                            <div className="bg-gray-100 p-2 rounded-full">
+                                                <User className="h-5 w-5 text-gray-600" />
+                                            </div>
+                                            <div>
+                                                <div className="font-medium">{participant.userName}</div>
+                                                <div className="text-sm text-gray-500">{participant.userEmail}</div>
+                                                <div className="text-xs text-gray-400 mt-1">
+                                                    신청일: {new Date(participant.appliedAt).toLocaleDateString()}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${participant.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                                participant.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                    'bg-yellow-100 text-yellow-800'
+                                                }`}>
+                                                {participant.status === 'approved' ? '승인됨' :
+                                                    participant.status === 'rejected' ? '거절됨' : '대기중'}
+                                            </span>
+
+                                            {participant.status !== 'approved' && (
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    className="bg-green-600 hover:bg-green-700 text-white h-8"
+                                                    onClick={() => handleStatusUpdate(participant.userId, 'approved')}
+                                                >
+                                                    승인
+                                                </Button>
+                                            )}
+                                            {participant.status !== 'rejected' && (
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="text-red-600 hover:bg-red-50 border-red-200 h-8"
+                                                    onClick={() => handleStatusUpdate(participant.userId, 'rejected')}
+                                                >
+                                                    거절
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </CardContent>
                 </Card>

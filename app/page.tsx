@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, Heart } from "lucide-react";
 import RecentJoins from "@/components/home/recent-joins";
+import { AdminInquiryDialog } from "@/components/home/admin-inquiry-dialog";
 
 export default function Home() {
   return (
@@ -109,23 +110,34 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 bg-gray-50">
         <div className="container px-4 md:px-6">
-          <div className="relative rounded-[2.5rem] bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-16 md:px-12 md:py-20 overflow-hidden text-center sm:text-left">
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-80 h-80 bg-red-600 rounded-full blur-[100px] opacity-30" />
-            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
-              <div className="space-y-4 max-w-xl">
+          <div className="relative rounded-[2.5rem] overflow-hidden min-h-[300px] flex items-center">
+            {/* Background Image with Gradient Overlay */}
+            <div className="absolute inset-0 z-0">
+              {/* Since image generation failed, we use a placeholder or existing image if available. 
+                   Ideally this would be the generated image. For now using a gradient placeholder 
+                   that matches the description "gradient background". 
+                   If the user provides an image later, we can swap it. */}
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800/80 to-transparent z-10" />
+              {/* Placeholder for the image - in real scenario, use <Image src="..." ... /> */}
+              <div className="w-full h-full bg-[url('/images/custom-rounding.png')] bg-cover bg-center opacity-50 grayscale mix-blend-overlay" />
+            </div>
+
+            <div className="relative z-20 w-full px-6 py-16 md:px-12 md:py-20 flex flex-col sm:flex-row items-center justify-between gap-8">
+              <div className="space-y-4 max-w-xl text-center sm:text-left">
                 <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-                  망설이지 말고 시작해보세요!<br />
-                  <span className="text-red-400">즐거운 라운딩</span>이 기다리고 있습니다.
+                  궁금한 점이 있으신가요?<br />
+                  <span className="text-red-400">무엇이든 물어보세요!</span>
                 </h2>
                 <p className="text-gray-300 text-lg">
-                  복잡한 예약, 불안한 동행 걱정은 끝. 빨간바지 솔로 골프와 함께라면 여행이 더 즐거워집니다.
+                  빨간바지 솔로 골프 이용 방법부터 조인 매칭까지,<br className="hidden sm:inline" />
+                  관리자가 친절하게 답변해 드립니다.
                 </p>
               </div>
-              <Link href="/join">
+              <AdminInquiryDialog>
                 <Button size="lg" className="rounded-full bg-white text-gray-900 hover:bg-gray-100 px-8 h-14 text-lg font-bold shadow-lg shrink-0">
-                  무료로 시작하기
+                  관리자에게 문의하기
                 </Button>
-              </Link>
+              </AdminInquiryDialog>
             </div>
           </div>
         </div>

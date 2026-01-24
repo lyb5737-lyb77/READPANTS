@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase";
-import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit, getCountFromServer } from "firebase/firestore";
 import { Join } from "@/lib/joins-data";
 
 const COLLECTION_NAME = "joins";
@@ -48,4 +48,10 @@ export async function updateJoin(id: string, data: Partial<Join>): Promise<void>
 
 export async function deleteJoin(id: string): Promise<void> {
     await deleteDoc(doc(db, COLLECTION_NAME, id));
+}
+
+export async function getActiveJoinsCount(): Promise<number> {
+    const q = query(collection(db, COLLECTION_NAME), where("status", "==", "open"));
+    const snapshot = await getCountFromServer(q);
+    return snapshot.data().count;
 }

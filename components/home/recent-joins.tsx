@@ -1,11 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getJoins } from "@/lib/db/joins";
-import { getCourse } from "@/lib/db/courses";
+import { getCourse, getCourses } from "@/lib/db/courses";
 import { Button } from "@/components/ui/button";
 import { Calendar, Users, MapPin, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { CustomRequestCard } from "@/components/home/custom-request-card";
 
 export default async function RecentJoins() {
     let joinsWithCourse: any[] = [];
@@ -34,6 +35,13 @@ export default async function RecentJoins() {
         return null; // Don't show section if no joins
     }
 
+    let courses: any[] = [];
+    try {
+        courses = await getCourses();
+    } catch (error) {
+        console.error("Failed to fetch courses:", error);
+    }
+
     return (
         <section className="py-20 bg-gray-50">
             <div className="container px-4 md:px-6">
@@ -47,10 +55,11 @@ export default async function RecentJoins() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <CustomRequestCard courses={courses} />
                     {joinsWithCourse.map((join) => (
-                        <div key={join.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
+                        <div key={join.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full">
                             {/* Image Section */}
-                            <div className="relative h-48 w-full bg-gray-200 overflow-hidden">
+                            <div className="relative h-48 w-full bg-gray-200 overflow-hidden shrink-0">
                                 {join.course?.images && join.course.images.length > 0 ? (
                                     <Image
                                         src={join.course.images[0]}
@@ -63,13 +72,18 @@ export default async function RecentJoins() {
                                         <span className="text-sm">이미지 없음</span>
                                     </div>
                                 )}
-                                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-red-600 shadow-sm">
-                                    D-{Math.ceil((new Date(join.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
-                                </div>
+                                {(() => {
+                                    const dDay = Math.ceil((new Date(join.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                    return (
+                                        <div className={`absolute top-4 right-4 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm ${dDay < 0 ? "bg-gray-800/90 text-white" : "bg-white/90 text-red-600"}`}>
+                                            {dDay < 0 ? "마감" : dDay === 0 ? "D-Day" : `D-${dDay}`}
+                                        </div>
+                                    );
+                                })()}
                             </div>
 
                             {/* Content Section */}
-                            <div className="p-6">
+                            <div className="p-6 flex flex-col flex-1">
                                 <div className="mb-4">
                                     <h3 className="text-lg font-bold text-gray-900 line-clamp-1 mb-1">
                                         {join.course?.name || "골프장 정보 없음"}
@@ -102,7 +116,7 @@ export default async function RecentJoins() {
                                     </div>
                                 </div>
 
-                                <Link href={`/join/${join.id}`} className="block">
+                                <Link href={`/join/${join.id}`} className="block mt-auto">
                                     <Button className="w-full bg-gray-900 hover:bg-red-600 transition-colors">
                                         참여하기
                                     </Button>

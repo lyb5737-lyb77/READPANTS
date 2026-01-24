@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { ForgotPasswordDialog } from "@/components/auth/forgot-password-dialog";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -49,10 +50,12 @@ export default function LoginPage() {
             router.push("/");
         } catch (err: any) {
             console.error(err);
-            if (err.code === 'auth/invalid-credential') {
+            if (err.code === 'auth/invalid-credential' ||
+                err.code === 'auth/wrong-password' ||
+                err.code === 'auth/user-not-found') {
                 setError("이메일 또는 비밀번호가 올바르지 않습니다.");
             } else {
-                setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+                setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요. (" + err.code + ")");
             }
         } finally {
             setLoading(false);
@@ -119,6 +122,10 @@ export default function LoginPage() {
                             {error}
                         </div>
                     )}
+
+                    <div className="flex justify-end">
+                        <ForgotPasswordDialog />
+                    </div>
 
                     <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={loading}>
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "로그인"}

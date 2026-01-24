@@ -24,7 +24,8 @@ service cloud.firestore {
     match /joinParticipants/{participantId} {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
     // Users: Read/Write own profile, Admin can read/write all
@@ -37,6 +38,19 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update, delete: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Notifications: Users can read/update their own, Admin can create
+    match /notifications/{notificationId} {
+      allow read, update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if isAdmin();
+    }
+
+    // Custom Requests: Users can create, Admin can read/update
+    match /custom_requests/{requestId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
     }
 
     // Default: Deny all

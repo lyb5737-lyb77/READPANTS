@@ -4,12 +4,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Menu, User, LogOut, LayoutDashboard, X } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { UserLevelBadge } from "@/components/ui/user-level-badge";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { NotificationList } from "@/components/layout/notification-list";
 
 export function Header() {
     const { user, userProfile, loading } = useAuthStore();
@@ -31,13 +33,12 @@ export function Header() {
             <div className="container flex h-20 items-center justify-between px-4 md:px-6">
                 <div className="flex items-center gap-2">
                     <Link href="/" className="flex items-center gap-2">
-                        <Image
+                        <motion.img
+                            layoutId="main-logo"
                             src="/images/logo-v2.png"
                             alt="Red Pants Logo"
-                            width={120}
-                            height={40}
                             className="h-10 w-auto object-contain"
-                            priority
+                            transition={{ duration: 0.8, ease: "easeInOut" }}
                         />
                     </Link>
                 </div>
@@ -71,6 +72,7 @@ export function Header() {
                         {!loading && (
                             user ? (
                                 <div className="flex items-center gap-3">
+                                    <NotificationList />
                                     <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                                         <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
                                             <User className="h-4 w-4" />
@@ -108,6 +110,11 @@ export function Header() {
                                 </>
                             )
                         )}
+                    </div>
+
+                    {/* Mobile Notification Bell */}
+                    <div className="md:hidden flex items-center mr-1">
+                        {!loading && user && <NotificationList />}
                     </div>
 
                     {/* Mobile Menu Button */}

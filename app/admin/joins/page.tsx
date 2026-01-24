@@ -76,7 +76,8 @@ export default function AdminJoinsPage() {
             </div>
 
             <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-sm text-left">
                         <thead className="bg-gray-50 text-gray-700 uppercase">
                             <tr>
@@ -135,6 +136,58 @@ export default function AdminJoinsPage() {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y">
+                    {filteredJoins.map((join) => (
+                        <div key={join.id} className="p-4 space-y-3">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="font-bold text-gray-900">{join.courseName}</h3>
+                                    <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                                        <Calendar className="w-3 h-3" /> {join.date} {join.time}
+                                    </div>
+                                </div>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium border ${join.status === 'open' ? 'bg-green-50 text-green-700 border-green-200' :
+                                    join.status === 'full' ? 'bg-red-50 text-red-700 border-red-200' :
+                                        'bg-gray-50 text-gray-700 border-gray-200'
+                                    }`}>
+                                    {join.status === 'open' ? '모집중' :
+                                        join.status === 'full' ? '마감' : '종료'}
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="bg-gray-50 p-2 rounded">
+                                    <span className="text-gray-500 text-xs block">호스트</span>
+                                    <span className="font-medium">{join.hostName}</span>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded">
+                                    <span className="text-gray-500 text-xs block">그린피</span>
+                                    <span className="font-medium">{join.greenFee.toLocaleString()} 바트</span>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded col-span-2 flex justify-between items-center">
+                                    <span className="text-gray-500 text-xs">참여 현황</span>
+                                    <div className="flex items-center gap-1 font-medium">
+                                        <Users className="w-4 h-4 text-gray-400" />
+                                        <span>{join.currentMembers} / {join.maxMembers}명</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-2 pt-2">
+                                <Link href={`/admin/joins/${join.id}`} className="flex-1">
+                                    <Button variant="outline" size="sm" className="w-full">
+                                        <Edit className="w-4 h-4 mr-2" /> 수정
+                                    </Button>
+                                </Link>
+                                <Button variant="outline" size="sm" className="flex-1 text-red-600 hover:bg-red-50" onClick={() => handleDelete(join.id)}>
+                                    <Trash2 className="w-4 h-4 mr-2" /> 삭제
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
                 </div>
                 {filteredJoins.length === 0 && (
                     <div className="p-8 text-center text-gray-500">

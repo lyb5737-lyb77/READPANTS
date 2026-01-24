@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { Users, LayoutDashboard, Settings, LogOut, Map, Hotel, UserCog, Utensils } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Users, LayoutDashboard, Settings, LogOut, Map, Hotel, UserCog, Utensils, Menu, X, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { auth } from "@/lib/firebase";
 
@@ -17,6 +17,7 @@ export default function AdminLayout({
     const { user, loading } = useAuthStore();
     const router = useRouter();
     const pathname = usePathname();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -40,29 +41,49 @@ export default function AdminLayout({
         { name: "대시보드", href: "/admin", icon: LayoutDashboard },
         { name: "회원 정보 관리", href: "/admin/members", icon: UserCog },
         { name: "골프 조인 관리", href: "/admin/joins", icon: Users },
-        { name: "골프장 관리", href: "/admin/resources", icon: Map },
-        { name: "숙소 관리", href: "/admin/accommodations", icon: Hotel },
-        { name: "식당 관리", href: "/admin/restaurants", icon: Utensils },
         { name: "커뮤니티 관리", href: "/admin/community", icon: Users },
+        { name: "커스텀 요청 관리", href: "/admin/requests", icon: MessageSquare },
+        { name: "골프장 관리", href: "/admin/resources", icon: Map },
         { name: "데이터 진단", href: "/admin/diagnostic", icon: Settings },
         { name: "설정", href: "/admin/settings", icon: Settings },
     ];
 
     return (
         <div className="flex min-h-screen bg-gray-100">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white shadow-md hidden md:flex flex-col fixed h-full">
-                <div className="p-6 border-b">
+            {/* Mobile Header (Logo only) */}
+            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-30 flex items-center justify-center px-4">
+                <h1 className="text-lg font-bold text-red-600 flex items-center gap-2">
+                    <span className="w-5 h-5 bg-red-600 rounded-full"></span>
+                    관리자 센터
+                </h1>
+            </div>
+
+            {/* Sidebar (Desktop: Fixed, Mobile: Slide-over) */}
+            <aside className={cn(
+                "w-64 bg-white shadow-md flex flex-col fixed h-full z-50 transition-transform duration-300 md:translate-x-0 pt-0",
+                isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            )}>
+                <div className="p-6 border-b hidden md:block">
                     <h1 className="text-xl font-bold text-red-600 flex items-center gap-2">
                         <span className="w-6 h-6 bg-red-600 rounded-full"></span>
                         관리자 센터
                     </h1>
                 </div>
-                <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+
+                {/* Mobile Sidebar Header with Close Button */}
+                <div className="md:hidden p-4 border-b flex items-center justify-between bg-gray-50">
+                    <span className="font-bold text-gray-700">전체 메뉴</span>
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-500 hover:bg-gray-200 rounded-full">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto pb-24 md:pb-4">
                     {sidebarItems.map((item) => (
                         <Link
                             key={item.href}
                             href={item.href}
+                            onClick={() => setIsMobileMenuOpen(false)}
                             className={cn(
                                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                                 pathname === item.href
@@ -75,7 +96,7 @@ export default function AdminLayout({
                         </Link>
                     ))}
                 </nav>
-                <div className="p-4 border-t">
+                <div className="p-4 border-t mt-auto bg-white">
                     <div className="flex items-center gap-3 px-3 py-2 mb-2">
                         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-600">
                             {user.email?.[0].toUpperCase()}
@@ -95,10 +116,45 @@ export default function AdminLayout({
                 </div>
             </aside>
 
+            {/* Overlay */}
+            {isMobileMenuOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
             {/* Main Content */}
-            <main className="flex-1 md:ml-64 p-8">
+            <main className="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 pb-24 md:pb-8">
                 {children}
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t h-16 z-30 flex items-center justify-around px-2 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
+                <Link href="/admin" className={cn("flex flex-col items-center justify-center w-full h-full space-y-1", pathname === "/admin" ? "text-red-600" : "text-gray-500")}>
+                    <LayoutDashboard className="w-5 h-5" />
+                    <span className="text-[10px] font-medium">홈</span>
+                </Link>
+                <Link href="/admin/members" className={cn("flex flex-col items-center justify-center w-full h-full space-y-1", pathname.startsWith("/admin/members") ? "text-red-600" : "text-gray-500")}>
+                    <UserCog className="w-5 h-5" />
+                    <span className="text-[10px] font-medium">회원</span>
+                </Link>
+                <Link href="/admin/joins" className={cn("flex flex-col items-center justify-center w-full h-full space-y-1", pathname.startsWith("/admin/joins") ? "text-red-600" : "text-gray-500")}>
+                    <Users className="w-5 h-5" />
+                    <span className="text-[10px] font-medium">조인</span>
+                </Link>
+                <Link href="/admin/requests" className={cn("flex flex-col items-center justify-center w-full h-full space-y-1", pathname.startsWith("/admin/requests") ? "text-red-600" : "text-gray-500")}>
+                    <MessageSquare className="w-5 h-5" />
+                    <span className="text-[10px] font-medium">요청</span>
+                </Link>
+                <button
+                    onClick={() => setIsMobileMenuOpen(true)}
+                    className={cn("flex flex-col items-center justify-center w-full h-full space-y-1", isMobileMenuOpen ? "text-red-600" : "text-gray-500")}
+                >
+                    <Menu className="w-5 h-5" />
+                    <span className="text-[10px] font-medium">전체</span>
+                </button>
+            </div>
         </div>
     );
 }

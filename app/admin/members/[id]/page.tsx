@@ -81,6 +81,32 @@ export default function MemberEditPage({ params }: PageProps) {
         }
     };
 
+    const [newPassword, setNewPassword] = useState("");
+    const [passwordLoading, setPasswordLoading] = useState(false);
+
+    const handlePasswordChange = async () => {
+        if (!userId || !newPassword) return;
+        if (!confirm("정말 비밀번호를 변경하시겠습니까?")) return;
+
+        setPasswordLoading(true);
+        try {
+            const { updateUserPassword } = await import("@/app/actions/user-actions");
+            const result = await updateUserPassword(userId, newPassword);
+
+            if (result.success) {
+                alert("비밀번호가 변경되었습니다.");
+                setNewPassword("");
+            } else {
+                alert("비밀번호 변경 실패: " + result.error);
+            }
+        } catch (error) {
+            console.error("Error changing password:", error);
+            alert("비밀번호 변경 중 오류가 발생했습니다.");
+        } finally {
+            setPasswordLoading(false);
+        }
+    };
+
     if (initialLoading) {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
     }
@@ -171,6 +197,30 @@ export default function MemberEditPage({ params }: PageProps) {
                                     * 관리자로 설정하면 관리자 페이지의 모든 기능에 접근할 수 있습니다.
                                 </p>
                             </div>
+                        </div>
+
+                        <div className="space-y-2 pt-4 border-t">
+                            <Label htmlFor="newPassword">비밀번호 변경</Label>
+                            <div className="flex gap-2">
+                                <Input
+                                    id="newPassword"
+                                    type="password"
+                                    placeholder="새 비밀번호 입력 (6자 이상)"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handlePasswordChange}
+                                    disabled={passwordLoading || !newPassword || newPassword.length < 6}
+                                >
+                                    {passwordLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "변경"}
+                                </Button>
+                            </div>
+                            <p className="text-xs text-gray-500">
+                                * 회원의 비밀번호를 직접 변경합니다. 변경 후 회원에게 알려주세요.
+                            </p>
                         </div>
 
                     </CardContent>
