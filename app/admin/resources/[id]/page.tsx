@@ -4,13 +4,14 @@ import { useState, useEffect, use } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { doc, getDoc, addDoc, updateDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, addDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Loader2, X, Image as ImageIcon, MapPin, Flag, Clock, Info } from 'lucide-react';
 import { GolfCourse } from '@/types/golf-course';
@@ -18,6 +19,8 @@ import { GolfCourse } from '@/types/golf-course';
 const formSchema = z.object({
     name: z.string().min(1, "골프장 이름은 필수입니다."),
     enName: z.string().min(1, "영문 이름은 필수입니다."),
+    country: z.string().min(1, "국가는 필수입니다."),
+    region: z.string().min(1, "지역은 필수입니다."),
     holes: z.coerce.number().min(9, "최소 9홀 이상이어야 합니다."),
     yards: z.string().optional(),
     designer: z.string().optional(),
@@ -57,14 +60,42 @@ export default function GolfCourseFormPage(props: PageProps) {
     const [uploading, setUploading] = useState(false);
     const [images, setImages] = useState<string[]>([]);
     const [initialLoading, setInitialLoading] = useState(isEditMode);
+    const [regions, setRegions] = useState<Array<{ country: string; region: string; label: string }>>([]);
+    const [selectedCountry, setSelectedCountry] = useState<string>('Thailand');
 
-    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
+    const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<FormValues>({
+        resolver: zodResolver(formSchema) as any,
         defaultValues: {
             galleryAvailable: true,
             holes: 18,
+            country: 'Thailand',
+            region: 'Pattaya',
         }
     });
+
+    const watchCountry = watch('country');
+
+    // Fetch regions from Firestore
+    useEffect(() => {
+        const fetchRegions = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'regions'));
+                const fetchedRegions: Array<{ country: string; region: string; label: string }> = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    fetchedRegions.push({
+                        country: data.country,
+                        region: data.region,
+                        label: data.label,
+                    });
+                });
+                setRegions(fetchedRegions);
+            } catch (error) {
+                console.error('Failed to fetch regions:', error);
+            }
+        };
+        fetchRegions();
+    }, []);
 
     useEffect(() => {
         if (isEditMode && id) {
@@ -77,6 +108,8 @@ export default function GolfCourseFormPage(props: PageProps) {
                         reset({
                             name: data.name,
                             enName: data.enName,
+                            country: data.country || 'Thailand',
+                            region: data.region || 'Pattaya',
                             holes: data.holes,
                             yards: data.yards,
                             designer: data.designer,
@@ -137,6 +170,8 @@ export default function GolfCourseFormPage(props: PageProps) {
             const courseData: Partial<GolfCourse> = {
                 name: data.name,
                 enName: data.enName,
+                country: data.country,
+                region: data.region,
                 holes: data.holes,
                 yards: data.yards,
                 designer: data.designer,
@@ -209,6 +244,54 @@ export default function GolfCourseFormPage(props: PageProps) {
                             <Label htmlFor="enName">영문 이름 <span className="text-red-500">*</span></Label>
                             <Input id="enName" placeholder="예: Greenwood Golf Club" {...register("enName")} />
                             {errors.enName && <p className="text-xs text-red-500">{errors.enName.message}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="country">국가 <span className="text-red-500">*</span></Label>
+                            <Select
+                                value={watchCountry}
+                                onValueChange={(value) => {
+                                    setValue('country', value);
+                                    setSelectedCountry(value);
+                                    // Reset region when country changes
+                                    const firstRegionOfCountry = regions.find(r => r.country === value);
+                                    if (firstRegionOfCountry) {
+                                        setValue('region', firstRegionOfCountry.region);
+                                    }
+                                }}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="국가를 선택하세요" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {[...new Set(regions.map(r => r.country))].map((country) => (
+                                        <SelectItem key={country} value={country}>
+                                            {country}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {errors.country && <p className="text-xs text-red-500">{errors.country.message}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="region">지역 <span className="text-red-500">*</span></Label>
+                            <Select
+                                value={watch('region')}
+                                onValueChange={(value) => setValue('region', value)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="지역을 선택하세요" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {regions
+                                        .filter(r => r.country === watchCountry)
+                                        .map((region) => (
+                                            <SelectItem key={`${region.country}-${region.region}`} value={region.region}>
+                                                {region.label}
+                                            </SelectItem>
+                                        ))}
+                                </SelectContent>
+                            </Select>
+                            {errors.region && <p className="text-xs text-red-500">{errors.region.message}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="holes">홀 수</Label>

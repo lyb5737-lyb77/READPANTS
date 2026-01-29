@@ -12,7 +12,6 @@ import { formatUserRankingData } from '@/lib/ranking';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { updateProfile } from 'firebase/auth';
@@ -33,7 +32,7 @@ export default function OnboardingPage() {
     const [error, setError] = useState<string | null>(null);
 
     const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(formSchema) as any,
     });
 
     useEffect(() => {
@@ -126,24 +125,32 @@ export default function OnboardingPage() {
 
                         <div className="space-y-2">
                             <Label htmlFor="gender">성별</Label>
-                            <Select {...register("gender")} className="bg-background">
+                            <select
+                                id="gender"
+                                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                {...register("gender")}
+                            >
                                 <option value="">성별 선택</option>
                                 <option value="male">남성</option>
                                 <option value="female">여성</option>
-                            </Select>
+                            </select>
                             {errors.gender && <p className="text-sm text-red-500">{errors.gender.message}</p>}
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="averageScore">골프 평균 타수</Label>
-                            <Select {...register("averageScore")} className="bg-background">
+                            <select
+                                id="averageScore"
+                                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                {...register("averageScore")}
+                            >
                                 <option value="">평균 타수 선택</option>
                                 <option value="single">싱글 (79타 이하)</option>
                                 <option value="80s">80타대</option>
                                 <option value="90s">90타대</option>
                                 <option value="100s">100타대 (백돌이/백순이)</option>
                                 <option value="beginner">입문/초보</option>
-                            </Select>
+                            </select>
                             {errors.averageScore && <p className="text-sm text-red-500">{errors.averageScore.message}</p>}
                         </div>
 

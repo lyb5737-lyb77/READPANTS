@@ -2,6 +2,8 @@ export interface GolfCourse {
     id?: string;
     name: string; // 골프장 이름 (예: 그린우드 골프 클럽)
     enName: string; // 영문 이름 (예: Greenwood Golf Club)
+    country: string; // 국가
+    region: string; // 지역
 
     // 기본 정보
     holes: number; // 홀 수 (예: 27)

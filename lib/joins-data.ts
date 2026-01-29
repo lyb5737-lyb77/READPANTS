@@ -4,6 +4,8 @@ export interface Join {
     id: string;
     courseId: string;
     courseName: string;
+    country: string;
+    region: string;
     date: string; // YYYY-MM-DD
     time: string; // HH:MM
     greenFee: number;
@@ -28,6 +30,8 @@ export const joins: Join[] = [
         id: "join-1",
         courseId: "siam-country-club-old-course",
         courseName: "시암 컨트리 클럽 올드 코스",
+        country: "Thailand",
+        region: "Pattaya",
         date: "2026-02-15",
         time: "08:30",
         greenFee: 4500,
@@ -44,6 +48,8 @@ export const joins: Join[] = [
         id: "join-2",
         courseId: "laem-chabang-international-country-club",
         courseName: "람차방 인터내셔널 컨트리 클럽",
+        country: "Thailand",
+        region: "Pattaya",
         date: "2026-02-16",
         time: "12:00",
         greenFee: 3800,
@@ -60,6 +66,8 @@ export const joins: Join[] = [
         id: "join-3",
         courseId: "chee-chan-golf-resort",
         courseName: "치찬 골프 리조트",
+        country: "Thailand",
+        region: "Pattaya",
         date: "2026-02-20",
         time: "07:00",
         greenFee: 4200,
@@ -76,6 +84,8 @@ export const joins: Join[] = [
         id: "join-4",
         courseId: "phoenix-gold-golf-country-club-pattaya",
         courseName: "피닉스 골드 골프 앤 컨트리 클럽 (파타야)",
+        country: "Thailand",
+        region: "Pattaya",
         date: "2026-02-22",
         time: "13:30",
         greenFee: 2500,
@@ -92,6 +102,8 @@ export const joins: Join[] = [
         id: "join-5",
         courseId: "burapha-golf-and-resort",
         courseName: "부라파 골프 앤 리조트",
+        country: "Thailand",
+        region: "Pattaya",
         date: "2026-02-25",
         time: "09:10",
         greenFee: 2800,

@@ -5,10 +5,21 @@ import { Course } from "@/lib/courses-data";
 import { MapPin, Flag, Ruler } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default async function CoursesPage() {
+export default async function CoursesPage({
+    searchParams,
+}: {
+    searchParams: { country?: string; region?: string };
+}) {
+    const country = searchParams.country || 'Thailand';
+    const region = searchParams.region || 'Pattaya';
+
     let courses: Course[] = [];
     try {
-        courses = await getCourses();
+        const allCourses = await getCourses();
+        // Filter by selected region
+        courses = allCourses.filter(
+            (course) => course.country === country && course.region === region
+        );
     } catch (error) {
         console.error("Failed to fetch courses:", error);
         // In a real app, we might want to show an error message UI here
@@ -20,7 +31,7 @@ export default async function CoursesPage() {
                     제휴 골프장 소개
                 </h1>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                    빨간바지 솔로 골프가 엄선한 태국 파타야/라용 지역의 명문 골프장을 소개합니다.
+                    빨간바지 솔로 골프가 엄선한 {region} 지역의 명문 골프장을 소개합니다.
                 </p>
             </div>
 

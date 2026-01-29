@@ -53,6 +53,12 @@ service cloud.firestore {
       allow update: if isAdmin();
     }
 
+    // Regions: Public read, Admin write
+    match /regions/{regionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Default: Deny all
     match /{document=**} {
       allow read, write: if false;

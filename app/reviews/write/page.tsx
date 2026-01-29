@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Star, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/lib/store/auth-store";
@@ -11,6 +11,10 @@ import { Course } from "@/lib/courses-data";
 
 export default function WriteReviewPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const country = searchParams.get('country') || 'Thailand';
+    const region = searchParams.get('region') || 'Pattaya';
+
     const { user, userProfile } = useAuthStore();
     const [rating, setRating] = useState(5);
     const [hoveredRating, setHoveredRating] = useState(0);
@@ -28,11 +32,15 @@ export default function WriteReviewPage() {
             return;
         }
 
-        // Fetch courses
+        // Fetch courses and filter by region
         const fetchCourses = async () => {
             try {
                 const fetchedCourses = await getCourses();
-                setCourses(fetchedCourses);
+                // Filter courses by selected region
+                const filteredCourses = fetchedCourses.filter(
+                    (course) => course.country === country && course.region === region
+                );
+                setCourses(filteredCourses);
             } catch (err) {
                 console.error("Failed to fetch courses:", err);
             } finally {
@@ -40,7 +48,7 @@ export default function WriteReviewPage() {
             }
         };
         fetchCourses();
-    }, [user, router]);
+    }, [user, router, country, region]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

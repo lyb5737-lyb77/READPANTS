@@ -82,6 +82,7 @@ export default function AdminJoinsPage() {
                         <thead className="bg-gray-50 text-gray-700 uppercase">
                             <tr>
                                 <th className="px-6 py-3">골프장 / 일시</th>
+                                <th className="px-6 py-3">지역</th>
                                 <th className="px-6 py-3">호스트</th>
                                 <th className="px-6 py-3">그린피</th>
                                 <th className="px-6 py-3">참여 현황</th>
@@ -96,6 +97,12 @@ export default function AdminJoinsPage() {
                                         <div className="font-medium text-gray-900">{join.courseName}</div>
                                         <div className="text-gray-500 text-xs flex items-center gap-1 mt-1">
                                             <Calendar className="w-3 h-3" /> {join.date} {join.time}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-1 text-gray-700">
+                                            <MapPin className="w-3 h-3 text-red-500" />
+                                            <span className="text-xs">{join.country} / {join.region}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
@@ -147,6 +154,10 @@ export default function AdminJoinsPage() {
                                     <h3 className="font-bold text-gray-900">{join.courseName}</h3>
                                     <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
                                         <Calendar className="w-3 h-3" /> {join.date} {join.time}
+                                    </div>
+                                    <div className="text-xs text-gray-600 flex items-center gap-1 mt-1">
+                                        <MapPin className="w-3 h-3 text-red-500" />
+                                        {join.country} / {join.region}
                                     </div>
                                 </div>
                                 <span className={`px-2 py-1 rounded-full text-xs font-medium border ${join.status === 'open' ? 'bg-green-50 text-green-700 border-green-200' :

@@ -1,10 +1,24 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, Heart } from "lucide-react";
 import RecentJoins from "@/components/home/recent-joins";
 import { AdminInquiryDialog } from "@/components/home/admin-inquiry-dialog";
 
-export default function Home() {
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ country?: string; region?: string }>;
+}) {
+  // Await searchParams (Next.js 15+)
+  const params = await searchParams;
+  const country = params.country || 'Thailand';
+  const region = params.region || 'Pattaya';
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -59,7 +73,7 @@ export default function Home() {
       </section>
 
       {/* Recent Joins Section */}
-      <RecentJoins />
+      <RecentJoins country={country} region={region} />
 
       {/* Feature Section */}
       <section className="py-20 bg-white">
@@ -119,7 +133,13 @@ export default function Home() {
                    If the user provides an image later, we can swap it. */}
               <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800/80 to-transparent z-10" />
               {/* Placeholder for the image - in real scenario, use <Image src="..." ... /> */}
-              <div className="w-full h-full bg-[url('/images/custom-rounding.png')] bg-cover bg-center opacity-50 grayscale mix-blend-overlay" />
+              <Image
+                src="/images/custom-rounding.png"
+                alt="Background"
+                fill
+                className="object-cover object-center opacity-50 grayscale mix-blend-overlay"
+                priority
+              />
             </div>
 
             <div className="relative z-20 w-full px-6 py-16 md:px-12 md:py-20 flex flex-col sm:flex-row items-center justify-between gap-8">

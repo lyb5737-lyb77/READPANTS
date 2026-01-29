@@ -76,7 +76,10 @@ export default function GolfCourseListPage() {
                                 <CardDescription className="line-clamp-1">{course.englishName}</CardDescription>
                             </CardHeader>
                             <CardContent className="p-4 pt-2 space-y-3">
-                                <div className="flex items-center text-sm text-gray-500 gap-2">
+                                <div className="flex items-center text-sm text-gray-500 gap-2 flex-wrap">
+                                    <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium">
+                                        {course.country} · {course.region}
+                                    </span>
                                     <span className="bg-gray-100 px-2 py-0.5 rounded text-xs font-medium">
                                         {course.holeCount}홀
                                     </span>

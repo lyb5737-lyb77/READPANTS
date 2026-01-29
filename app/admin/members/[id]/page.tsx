@@ -35,7 +35,7 @@ export default function MemberEditPage({ params }: PageProps) {
     const [initialLoading, setInitialLoading] = useState(true);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(formSchema) as any,
     });
 
     useEffect(() => {

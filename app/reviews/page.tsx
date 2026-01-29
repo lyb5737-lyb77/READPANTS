@@ -1,22 +1,42 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Star, ThumbsUp, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getReviews, likeReview, Review } from "@/lib/db/reviews";
+import { getCourses } from "@/lib/db/courses";
 import { format } from "date-fns";
 
 export default function ReviewsPage() {
+    const searchParams = useSearchParams();
+    const country = searchParams.get('country') || 'Thailand';
+    const region = searchParams.get('region') || 'Pattaya';
+
     const [reviews, setReviews] = useState<Review[]>([]);
+    const [allReviews, setAllReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const fetchedReviews = await getReviews();
-                setReviews(fetchedReviews);
+                const [fetchedReviews, courses] = await Promise.all([
+                    getReviews(),
+                    getCourses()
+                ]);
+                setAllReviews(fetchedReviews);
+
+                // Filter reviews by region using course info
+                const regionCourseIds = courses
+                    .filter(c => c.country === country && c.region === region)
+                    .map(c => c.id);
+
+                const filteredReviews = fetchedReviews.filter(
+                    r => regionCourseIds.includes(r.courseId)
+                );
+                setReviews(filteredReviews);
             } catch (err) {
                 console.error("Failed to fetch reviews:", err);
                 setError("후기를 불러오는 중 오류가 발생했습니다.");
@@ -25,7 +45,7 @@ export default function ReviewsPage() {
             }
         };
         fetchReviews();
-    }, []);
+    }, [country, region]);
 
     const handleLike = async (reviewId: string) => {
         try {
@@ -50,7 +70,7 @@ export default function ReviewsPage() {
                         빨간바지 솔로 골프를 통해 다녀오신 분들의 솔직한 이야기를 들어보세요.
                     </p>
                 </div>
-                <Link href="/reviews/write">
+                <Link href={`/reviews/write?country=${country}&region=${region}`}>
                     <Button className="bg-gray-900 hover:bg-gray-800">
                         후기 작성하기
                     </Button>

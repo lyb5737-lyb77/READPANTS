@@ -8,13 +8,18 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, Calendar, MapPin, DollarSign, Users, ArrowLeft } from "lucide-react";
+import { Loader2, Calendar, MapPin, DollarSign, Users, ArrowLeft, Globe } from "lucide-react";
 import { getCourses } from "@/lib/db/courses";
 import { createJoin } from "@/lib/db/joins";
 import { Course } from "@/lib/courses-data";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const formSchema = z.object({
+    country: z.string().min(1, "국가를 선택해주세요."),
+    region: z.string().min(1, "지역을 선택해주세요."),
     courseId: z.string().min(1, "골프장을 선택해주세요."),
     date: z.string().min(1, "날짜를 선택해주세요."),
     time: z.string().min(1, "시간을 입력해주세요."),
@@ -35,24 +40,53 @@ export default function NewJoinPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [courses, setCourses] = useState<Course[]>([]);
+    const [allCourses, setAllCourses] = useState<Course[]>([]);
+    const [regions, setRegions] = useState<Array<{ country: string; region: string; label: string }>>([]);
 
     useEffect(() => {
-        const fetchCourses = async () => {
-            const data = await getCourses();
-            setCourses(data);
+        const fetchData = async () => {
+            const coursesData = await getCourses();
+            setAllCourses(coursesData);
+
+            const regionsSnapshot = await getDocs(collection(db, 'regions'));
+            const fetchedRegions: Array<{ country: string; region: string; label: string }> = [];
+            regionsSnapshot.forEach((doc) => {
+                const data = doc.data();
+                fetchedRegions.push({
+                    country: data.country,
+                    region: data.region,
+                    label: data.label,
+                });
+            });
+            setRegions(fetchedRegions);
         };
-        fetchCourses();
+        fetchData();
     }, []);
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            country: 'Thailand',
+            region: 'Pattaya',
             maxMembers: 4,
             currentMembers: 1,
             hostName: "관리자",
             hostLevel: "마스터",
         }
     });
+
+    const watchCountry = watch('country');
+    const watchRegion = watch('region');
+
+    // Filter courses based on selected region
+    useEffect(() => {
+        if (watchCountry && watchRegion) {
+            const filtered = allCourses.filter(
+                (course) => course.country === watchCountry && course.region === watchRegion
+            );
+            setCourses(filtered);
+        }
+    }, [watchCountry, watchRegion, allCourses]);
 
     const onSubmit = async (data: FormValues) => {
         setLoading(true);
@@ -63,8 +97,10 @@ export default function NewJoinPage() {
             await createJoin({
                 ...data,
                 courseName: selectedCourse.name,
+                country: data.country,
+                region: data.region,
                 status: "open",
-                hostId: "admin", // In a real app, use auth.currentUser.uid
+                hostId: "admin",
                 description: data.description || "",
             });
 
@@ -97,10 +133,59 @@ export default function NewJoinPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <Calendar className="w-5 h-5 text-primary" /> 일정 및 장소
+                            <Globe className="w-5 h-5 text-primary" /> 지역 및 골프장
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="country">국가</Label>
+                                <Select
+                                    value={watchCountry}
+                                    onValueChange={(value) => {
+                                        setValue('country', value);
+                                        const firstRegionOfCountry = regions.find(r => r.country === value);
+                                        if (firstRegionOfCountry) {
+                                            setValue('region', firstRegionOfCountry.region);
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="국가를 선택하세요" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {[...new Set(regions.map(r => r.country))].map((country) => (
+                                            <SelectItem key={country} value={country}>
+                                                {country}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.country && <p className="text-xs text-red-500">{errors.country.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="region">지역</Label>
+                                <Select
+                                    value={watchRegion}
+                                    onValueChange={(value) => setValue('region', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="지역을 선택하세요" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {regions
+                                            .filter(r => r.country === watchCountry)
+                                            .map((region) => (
+                                                <SelectItem key={`${region.country}-${region.region}`} value={region.region}>
+                                                    {region.label}
+                                                </SelectItem>
+                                            ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.region && <p className="text-xs text-red-500">{errors.region.message}</p>}
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
                             <Label htmlFor="courseId">골프장 선택</Label>
                             <select

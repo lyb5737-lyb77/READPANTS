@@ -6,11 +6,16 @@ export interface Course {
   length: string;
   designer: string;
   address: string;
+  description?: string;
   images: string[];
+  country: string;
+  region: string;
 }
 
 export const courses: Course[] = [
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "greenwood-golf-club",
     "name": "그린우드 골프 클럽",
     "englishName": "Greenwood Golf Club",
@@ -31,6 +36,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "rayong-green-valley-country-club",
     "name": "라용 그린 밸리 컨트리 클럽",
     "englishName": "Rayong Green Valley Country Club",
@@ -53,6 +60,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "laem-chabang-international-country-club",
     "name": "람차방 인터내셔널 컨트리 클럽",
     "englishName": "Laem Chabang International Country Club",
@@ -75,6 +84,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "mountain-shadow-golf-club",
     "name": "마운틴 쉐도우 골프 클럽",
     "englishName": "Mountain Shadow Golf Club",
@@ -92,6 +103,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "bangpakong-riverside-country-club",
     "name": "방파콩 리버사이드 컨트리 클럽",
     "englishName": "Bangpakong Riverside Country Club",
@@ -114,6 +127,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "bangpra-international-golf-club",
     "name": "방프라 인터내셔널 골프 클럽",
     "englishName": "Bangpra International Golf Club",
@@ -139,6 +154,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "burapha-golf-and-resort",
     "name": "부라파 골프 앤 리조트",
     "englishName": "Burapha Golf and Resort",
@@ -159,6 +176,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "plutaluang-navy-golf-course",
     "name": "뿌딸루앙 네이비 골프 코스",
     "englishName": "Plutaluang Navy Golf Course",
@@ -181,6 +200,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "st-andrews-2000-golf-course",
     "name": "세인트 앤드류스 2000 골프 코스",
     "englishName": "St. Andrews 2000 Golf Course",
@@ -202,6 +223,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "siam-country-club-rolling-hills",
     "name": "시암 컨트리 클럽 롤링 힐스",
     "englishName": "Siam Country Club Rolling Hills",
@@ -223,6 +246,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "siam-country-club-old-course",
     "name": "시암 컨트리 클럽 올드 코스",
     "englishName": "Siam Country Club Old Course",
@@ -241,6 +266,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "siam-country-club-waterside",
     "name": "시암 컨트리 클럽 워터사이드",
     "englishName": "Siam Country Club Waterside",
@@ -264,6 +291,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "silky-oak-country-club",
     "name": "실키 오크 컨트리 클럽",
     "englishName": "Silky Oak Country Club",
@@ -282,6 +311,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "eastern-star-country-club-resort",
     "name": "이스턴 스타 컨트리 클럽 앤 리조트",
     "englishName": "Eastern Star Country Club & Resort",
@@ -305,6 +336,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "chee-chan-golf-resort",
     "name": "치찬 골프 리조트",
     "englishName": "Chee Chan Golf Resort",
@@ -329,6 +362,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "khao-kheow-country-club",
     "name": "카오 키여우 컨트리 클럽",
     "englishName": "Khao Kheow Country Club",
@@ -356,6 +391,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "crystal-bay-golf-club",
     "name": "크리스탈 베이 골프 클럽",
     "englishName": "Crystal Bay Golf Club",
@@ -374,6 +411,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "treasure-hill-golf-club",
     "name": "트레저 힐 골프 클럽",
     "englishName": "Treasure Hill Golf Club",
@@ -399,6 +438,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "pattana-sports-resort",
     "name": "파타나 스포츠 리조트",
     "englishName": "Pattana Sports Resort",
@@ -425,6 +466,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "pattaya-country-club",
     "name": "파타야 컨트리 클럽",
     "englishName": "Pattaya Country Club",
@@ -446,6 +489,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "pleasant-valley-golf-country-club",
     "name": "프레젠트밸리 골프 앤 컨트리 클럽",
     "englishName": "Pleasant Valley Golf & Country Club",
@@ -471,6 +516,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "phoenix-gold-golf-country-club-pattaya",
     "name": "피닉스 골드 골프 앤 컨트리 클럽 (파타야)",
     "englishName": "Phoenix Gold Golf & Country Club (Pattaya)",
@@ -495,6 +542,8 @@ export const courses: Course[] = [
     ]
   },
   {
+    "country": "Thailand",
+    "region": "Pattaya",
     "id": "hermes-golf-club",
     "name": "헤르메스 골프 클럽",
     "englishName": "Hermes Golf Club",
@@ -514,6 +563,95 @@ export const courses: Course[] = [
       "/images/courses/hermes-golf-club/7.webp",
       "/images/courses/hermes-golf-club/8.webp",
       "/images/courses/hermes-golf-club/9.webp"
+    ]
+  },
+  {
+    "country": "Vietnam",
+    "region": "Haiphong",
+    "id": "dragon-golf-links",
+    "name": "드래곤 골프 링크스",
+    "englishName": "Dragon Golf Links",
+    "holeCount": "18홀",
+    "length": "7254 야드",
+    "designer": "Greg Norman",
+    "address": "Khu Du lịch Quốc tế Đồi Rồng, Phường Vạn Hương, Quận Đồ Sơn, Thành phố Hải Phòng, Việt Nam",
+    "description": "하이퐁의 대표적인 명문 골프장으로 Greg Norman이 설계한 18홀 챔피언십 코스입니다.",
+    "images": [
+      "/images/courses/dragon-golf-links/1.webp",
+      "/images/courses/dragon-golf-links/2.webp",
+      "/images/courses/dragon-golf-links/3.webp",
+      "/images/courses/dragon-golf-links/4.webp",
+      "/images/courses/dragon-golf-links/5.webp",
+      "/images/courses/dragon-golf-links/6.webp",
+      "/images/courses/dragon-golf-links/7.webp",
+      "/images/courses/dragon-golf-links/8.webp",
+      "/images/courses/dragon-golf-links/9.webp"
+    ]
+  },
+  {
+    "country": "Vietnam",
+    "region": "Haiphong",
+    "id": "ruby-tree-golf-resort",
+    "name": "루비 트리 골프 리조트 클럽",
+    "englishName": "Ruby Tree Golf Resort",
+    "holeCount": "18홀",
+    "length": "6836 야드",
+    "designer": "Pacific Coast Design - Australia",
+    "address": "Ngoc Xuyen, Do Son, Hai Phong, Viet Nam",
+    "description": "아름다운 자연 경관 속에 위치한 루비 트리 골프 리조트입니다.",
+    "images": [
+      "/images/courses/ruby-tree-golf-resort/1.webp",
+      "/images/courses/ruby-tree-golf-resort/2.webp",
+      "/images/courses/ruby-tree-golf-resort/3.webp",
+      "/images/courses/ruby-tree-golf-resort/4.webp",
+      "/images/courses/ruby-tree-golf-resort/5.webp",
+      "/images/courses/ruby-tree-golf-resort/6.webp",
+      "/images/courses/ruby-tree-golf-resort/7.webp",
+      "/images/courses/ruby-tree-golf-resort/8.webp",
+      "/images/courses/ruby-tree-golf-resort/9.webp"
+    ]
+  },
+  {
+    "country": "Vietnam",
+    "region": "Haiphong",
+    "id": "vinpearl-golf-hai-phong",
+    "name": "빈펄 골프 하이퐁",
+    "englishName": "Vinpearl Golf Hai Phong",
+    "holeCount": "36홀",
+    "length": "13428 야드",
+    "designer": "IMG Worldwide",
+    "address": "Vu Yen Island, Nguyen Binh Khiem Road, Dong Hai 2 Ward, Hai An District, Hai Phong, Vietnam",
+    "description": "하이퐁 최대 규모의 36홀 골프 리조트로 IMG Worldwide가 설계한 명문 코스입니다.",
+    "images": [
+      "/images/courses/vinpearl-golf-hai-phong/1.webp",
+      "/images/courses/vinpearl-golf-hai-phong/2.webp",
+      "/images/courses/vinpearl-golf-hai-phong/3.webp"
+    ]
+  },
+  {
+    "country": "Vietnam",
+    "region": "Haiphong",
+    "id": "sono-felice-country-club-haiphong",
+    "name": "소노 펠리체 컨트리 클럽 하이퐁",
+    "englishName": "Sono Felice Country Club Haiphong",
+    "holeCount": "27홀",
+    "length": "",
+    "designer": "",
+    "address": "",
+    "description": "하이퐁의 프리미엄 27홀 골프 클럽입니다.",
+    "images": [
+      "/images/courses/sono-felice-country-club-haiphong/1.webp",
+      "/images/courses/sono-felice-country-club-haiphong/2.webp",
+      "/images/courses/sono-felice-country-club-haiphong/3.webp",
+      "/images/courses/sono-felice-country-club-haiphong/4.webp",
+      "/images/courses/sono-felice-country-club-haiphong/5.webp",
+      "/images/courses/sono-felice-country-club-haiphong/6.webp",
+      "/images/courses/sono-felice-country-club-haiphong/7.webp",
+      "/images/courses/sono-felice-country-club-haiphong/8.webp",
+      "/images/courses/sono-felice-country-club-haiphong/9.webp",
+      "/images/courses/sono-felice-country-club-haiphong/10.webp",
+      "/images/courses/sono-felice-country-club-haiphong/11.webp",
+      "/images/courses/sono-felice-country-club-haiphong/12.jpg"
     ]
   }
 ];

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { getJoins } from "@/lib/db/joins";
 import { getCourses } from "@/lib/db/courses";
 import { Join } from "@/lib/joins-data";
@@ -11,9 +12,15 @@ import { Calendar, MapPin, Users, Clock, Filter, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function JoinPage() {
+    const searchParams = useSearchParams();
+    const country = searchParams.get('country') || 'Thailand';
+    const region = searchParams.get('region') || 'Pattaya';
+
     const [selectedCourse, setSelectedCourse] = useState<string>("all");
     const [joins, setJoins] = useState<Join[]>([]);
+    const [allJoins, setAllJoins] = useState<Join[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
+    const [allCourses, setAllCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -23,8 +30,8 @@ export default function JoinPage() {
                     getJoins(),
                     getCourses()
                 ]);
-                setJoins(joinsData);
-                setCourses(coursesData);
+                setAllJoins(joinsData);
+                setAllCourses(coursesData);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -33,6 +40,18 @@ export default function JoinPage() {
         };
         fetchData();
     }, []);
+
+    // Filter joins and courses by selected region
+    useEffect(() => {
+        const filteredJoins = allJoins.filter(
+            (join) => join.country === country && join.region === region
+        );
+        const filteredCourses = allCourses.filter(
+            (course) => course.country === country && course.region === region
+        );
+        setJoins(filteredJoins);
+        setCourses(filteredCourses);
+    }, [country, region, allJoins, allCourses]);
 
     const filteredJoins = selectedCourse === "all"
         ? joins
