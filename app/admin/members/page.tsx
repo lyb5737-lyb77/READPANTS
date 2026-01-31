@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Edit, Trash2, UserCog, Loader2 } from "lucide-react";
 import { getUsers, UserProfile } from "@/lib/db/users";
-import { UserLevelBadge } from "@/components/ui/user-level-badge";
+import { LevelBadge } from "@/components/ui/level-badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { sendNotification } from "@/lib/db/notifications";
@@ -87,8 +87,8 @@ export default function MembersPage() {
                         <thead className="bg-gray-50 text-gray-700 uppercase">
                             <tr>
                                 <th className="px-6 py-3">닉네임 / 이메일</th>
-                                <th className="px-6 py-3">등급</th>
-                                <th className="px-6 py-3">평균 타수</th>
+                                <th className="px-6 py-3">커뮤니티 등급</th>
+                                <th className="px-6 py-3">골프 실력</th>
                                 <th className="px-6 py-3">활동 포인트</th>
                                 <th className="px-6 py-3">권한</th>
                                 <th className="px-6 py-3">가입일</th>
@@ -103,10 +103,19 @@ export default function MembersPage() {
                                         <div className="text-gray-500 text-xs">{user.email}</div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <UserLevelBadge levelName={user.level} />
+                                        <LevelBadge
+                                            type="community"
+                                            level={user.communityLevel || 1}
+                                        />
                                     </td>
                                     <td className="px-6 py-4 font-medium">
-                                        {user.avgScore}
+                                        <div className="flex flex-col gap-1 items-start">
+                                            <LevelBadge
+                                                type="golf"
+                                                level={user.golfSkillLevel || 1}
+                                            />
+                                            <span className="text-xs text-gray-400 pl-1">{user.avgScore}타</span>
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -161,13 +170,22 @@ export default function MembersPage() {
                                     </div>
                                     <div className="text-sm text-gray-500 mt-0.5">{user.email}</div>
                                 </div>
-                                <UserLevelBadge levelName={user.level} />
+                                <div className="flex flex-col gap-1 items-end">
+                                    <LevelBadge
+                                        type="community"
+                                        level={user.communityLevel || 1}
+                                    />
+                                    <LevelBadge
+                                        type="golf"
+                                        level={user.golfSkillLevel || 1}
+                                    />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2 text-sm">
                                 <div className="bg-gray-50 p-2 rounded flex justify-between items-center">
                                     <span className="text-gray-500 text-xs">평균 타수</span>
-                                    <span className="font-medium">{user.avgScore}</span>
+                                    <span className="font-medium">{user.avgScore}타</span>
                                 </div>
                                 <div className="bg-gray-50 p-2 rounded flex justify-between items-center">
                                     <span className="text-gray-500 text-xs">포인트</span>

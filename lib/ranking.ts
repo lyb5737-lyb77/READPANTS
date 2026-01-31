@@ -1,4 +1,3 @@
-
 import {
     doc,
     getDoc,
@@ -9,6 +8,7 @@ import {
     serverTimestamp
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { COMMUNITY_LEVELS } from "./constants/levels";
 
 export interface RankLevel {
     level: number;
@@ -26,28 +26,29 @@ export interface RankingSettings {
     pointRules: PointRules;
 }
 
-// Default settings
-export const DEFAULT_RANK_LEVELS: RankLevel[] = [
-    { level: 1, name: "새싹", threshold: 0 },
-    { level: 2, name: "잔디", threshold: 50 },
-    { level: 3, name: "나무", threshold: 150 },
-    { level: 4, name: "숲", threshold: 300 },
-    { level: 5, name: "동산", threshold: 500 },
-    { level: 6, name: "태산", threshold: 1000 },
-    { level: 7, name: "구름", threshold: 2000 },
-    { level: 8, name: "하늘", threshold: 4000 },
-    { level: 9, name: "우주", threshold: 7000 },
-    { level: 10, name: "신", threshold: 10000 },
-];
+// Default settings adapted from COMMUNITY_LEVELS
+export const DEFAULT_RANK_LEVELS: RankLevel[] = COMMUNITY_LEVELS.map(l => ({
+    level: l.level,
+    name: l.name.ko,
+    threshold: l.threshold
+}));
 
 export const DEFAULT_POINT_RULES: PointRules = {
     post: 10,
     comment: 2,
 };
 
+// Initialize User Ranking Data
+export const formatUserRankingData = () => {
+    return {
+        activityPoints: 0,
+        communityLevel: 1,
+    };
+};
+
 const SETTINGS_DOC_PATH = "settings/community";
 
-// Get ranking settings (or defaults if not set)
+// Get ranking settings
 export const getRankingSettings = async (): Promise<RankingSettings> => {
     try {
         const docRef = doc(db, SETTINGS_DOC_PATH);
@@ -55,9 +56,10 @@ export const getRankingSettings = async (): Promise<RankingSettings> => {
 
         if (docSnap.exists()) {
             const data = docSnap.data() as RankingSettings;
-            // Merge with defaults to ensure structure
             return {
-                rankLevels: data.rankLevels || DEFAULT_RANK_LEVELS,
+                // If DB has custom levels, use them, otherwise default to Code Constants for structure
+                // Ideally, we prefer Code Constants for Levels to ensure consistency with Badges
+                rankLevels: DEFAULT_RANK_LEVELS, // Force use of code constants for levels
                 pointRules: data.pointRules || DEFAULT_POINT_RULES
             };
         } else {
@@ -86,28 +88,17 @@ export const updateRankingSettings = async (settings: RankingSettings) => {
     }
 };
 
-// Initialize user ranking data (helper for sign up)
-export const formatUserRankingData = () => {
-    return {
-        communityScore: 0,
-        communityRank: DEFAULT_RANK_LEVELS[0].name
-    };
-};
-
-// Add points to user and check for rank upgrade
+// Add points to user and update level
 export const addPoints = async (userId: string, actionType: 'post' | 'comment') => {
     try {
         await runTransaction(db, async (transaction) => {
-            // 1. Get Settings
+            // 1. Get Settings (for Point Rules only)
             const settingsDoc = await transaction.get(doc(db, SETTINGS_DOC_PATH));
-            let settings: RankingSettings = {
-                rankLevels: DEFAULT_RANK_LEVELS,
-                pointRules: DEFAULT_POINT_RULES
-            };
+            let pointRules = DEFAULT_POINT_RULES;
+
             if (settingsDoc.exists()) {
                 const data = settingsDoc.data() as Partial<RankingSettings>;
-                if (data.rankLevels) settings.rankLevels = data.rankLevels;
-                if (data.pointRules) settings.pointRules = data.pointRules;
+                if (data.pointRules) pointRules = data.pointRules;
             }
 
             // 2. Get User
@@ -116,27 +107,28 @@ export const addPoints = async (userId: string, actionType: 'post' | 'comment') 
             if (!userDoc.exists()) throw "User does not exist!";
 
             const userData = userDoc.data();
-            const currentScore = userData.communityScore || 0;
-            const pointsToAdd = actionType === 'post' ? settings.pointRules.post : settings.pointRules.comment;
-            const newScore = currentScore + pointsToAdd;
+            const currentPoints = userData.activityPoints || 0;
+            const pointsToAdd = actionType === 'post' ? pointRules.post : pointRules.comment;
+            const newPoints = currentPoints + pointsToAdd;
 
-            // 3. Determine New Rank
-            // Sort levels by threshold descending to find the highest matching level
-            const sortedLevels = [...settings.rankLevels].sort((a, b) => b.threshold - a.threshold);
-            const newRankLevel = sortedLevels.find(l => newScore >= l.threshold) || settings.rankLevels[0];
-            const newRank = newRankLevel.name;
+            // 3. Determine New Rank using Code Constants (to match Badges)
+            // Use COMMUNITY_LEVELS imported from constants
+            // Sort desc (highest threshold first)
+            const sortedLevels = [...COMMUNITY_LEVELS].sort((a, b) => b.threshold - a.threshold);
+            const newLevelInfo = sortedLevels.find(l => newPoints >= l.threshold) || COMMUNITY_LEVELS[0];
 
             // 4. Update User
             transaction.update(userRef, {
-                communityScore: newScore,
-                communityRank: newRank,
-                // Optional: Store history or notification trigger here
+                activityPoints: newPoints,
+                communityLevel: newLevelInfo.level,
+                // Legacy support if needed, but we try to move away
+                // communityScore: newPoints, 
+                // communityRank: newLevelInfo.name.ko 
             });
 
-            console.log(`Added ${pointsToAdd} points to user ${userId}. New Score: ${newScore}, Rank: ${newRank}`);
+            console.log(`Added ${pointsToAdd} points to user ${userId}. New Points: ${newPoints}, Level: ${newLevelInfo.level} (${newLevelInfo.name.ko})`);
         });
     } catch (error) {
         console.error("Error adding community points:", error);
-        // Don't throw error to prevent blocking the main action (post/comment creation)
     }
 };

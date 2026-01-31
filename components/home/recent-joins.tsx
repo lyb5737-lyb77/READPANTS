@@ -170,7 +170,7 @@ export default async function RecentJoins({
                                     </div>
                                 </div>
 
-                                <Link href={`/join/${join.id}`} className="block mt-auto">
+                                <Link href={`/join/${join.id}?country=${country}&region=${region}`} className="block mt-auto">
                                     <Button className="w-full bg-gray-900 hover:bg-red-600 transition-colors">
                                         참여하기
                                     </Button>
@@ -181,7 +181,7 @@ export default async function RecentJoins({
                 </div>
 
                 <div className="mt-12 text-center">
-                    <Link href="/join">
+                    <Link href={`/join?country=${country}&region=${region}`}>
                         <Button variant="outline" size="lg" className="rounded-full px-8">
                             더 많은 조인 보기
                         </Button>

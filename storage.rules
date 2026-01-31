@@ -1,0 +1,13 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    // Specific rules for banners
+    match /banners/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null; // Admin check recommended in production
+    }
+  }
+}

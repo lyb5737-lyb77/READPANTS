@@ -4,7 +4,9 @@ service cloud.firestore {
     
     // Helper function to check if user is admin
     function isAdmin() {
-      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
     // Golf Courses: Public read, Admin write
@@ -34,10 +36,24 @@ service cloud.firestore {
     }
 
     // Reviews: Public read, Authenticated users can write (own reviews)
+    // Reviews: Public read, Authenticated users can write (own reviews), Any auth user can like
     match /reviews/{reviewId} {
       allow read: if true;
+      allow create: if request.auth != null && request.resource.data.author.uid == request.auth.uid;
+      allow update: if request.auth != null && (
+        isAdmin() || 
+        resource.data.author.uid == request.auth.uid ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'likeCount'])
+      );
+      allow delete: if request.auth != null && (resource.data.author.uid == request.auth.uid || isAdmin());
+    }
+
+    // Quotes: Public read (list), Auth write (own), Admin write
+    match /quotes/{quoteId} {
+      allow read: if true;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
     // Notifications: Users can read/update their own, Admin can create
@@ -57,6 +73,51 @@ service cloud.firestore {
     match /regions/{regionId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // Banners: Public read, Admin write
+    // Banners: Public read, Admin write
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // YouTube Channels: Public read, Admin write
+    match /youtube_channels/{channelId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Settings (Community/Ranking): Public read, Admin write
+    match /settings/{settingId} {
+        allow read: if true;
+        allow write: if isAdmin();
+    }
+
+    // Helper for Premium Access (Gold Level 5+)
+    function isPremiumUser() {
+       return request.auth != null && 
+              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+              (
+                get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == "admin" ||
+                get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('communityLevel', 0) >= 5
+              );
+    }
+
+    // Premium Posts: Gold+ read/write
+    match /premium_posts/{postId} {
+        // Relaxed Read: Allow all authenticated users to avoid "Too many get() calls" limit in list queries.
+        // Access control is enforced in UI (app/premium/page.tsx).
+        allow read: if true; 
+        
+        allow create: if isPremiumUser() && request.resource.data.authorId == request.auth.uid;
+        allow update: if isPremiumUser() && (
+            resource.data.authorId == request.auth.uid || 
+            isAdmin() ||
+            // Allow voting (likes/dislikes)
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'dislikes', 'likedBy', 'dislikedBy'])
+        );
+        allow delete: if isAdmin() || (isPremiumUser() && resource.data.authorId == request.auth.uid);
     }
 
     // Default: Deny all

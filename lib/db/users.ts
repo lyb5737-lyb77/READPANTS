@@ -1,19 +1,39 @@
 import { db } from "@/lib/firebase";
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, getCountFromServer, query, orderBy, limit } from "firebase/firestore";
 
+// Helper to check admin access (Role OR High Community Level)
+export function isAdmin(profile: UserProfile | null): boolean {
+    if (!profile) return false;
+    // Level 9 (Grand Master) and 10 (Red Pants) have admin privileges
+    return profile.role === 'admin' || (profile.communityLevel >= 9);
+}
+
 const COLLECTION_NAME = "users";
 
 export interface UserProfile {
     uid: string;
     email: string;
     nickname: string;
-    phone?: string; // 휴대폰번호 (선택)
+    phone: string; // 휴대폰번호 (필수)
+    marketingConsents: {
+        sms: boolean;
+        email: boolean;
+        kakao: boolean;
+    };
     gender?: 'male' | 'female' | 'other'; // 성별 (선택)
-    level: string; // '브론즈', '실버', '골드', '다이아'
-    role: 'user' | 'admin';
+
+    // 레벨 시스템 이원화
+    communityLevel: number; // 1~10 (활동 등급)
+    activityPoints: number; // 활동 포인트 (기본값 0)
+
+    golfSkillLevel: number; // 1~10 (실력 등급)
     avgScore: number;
-    activityPoints?: number; // 활동 포인트 (선택, 기본값 0)
+
+    role: 'user' | 'admin';
     createdAt: string;
+
+    // Legacy support (optional)
+    level?: string;
 }
 
 export async function getUsers(): Promise<UserProfile[]> {

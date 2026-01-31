@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { AuthListener } from "@/components/auth-listener";
 import { BackgroundOverlay } from "@/components/background-overlay";
 import { SplashScreen } from "@/components/ui/splash-screen";
+import { ProfileGuard } from "@/components/auth/profile-guard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,8 @@ export default function RootLayout({
         <BackgroundOverlay />
         <SplashScreen />
         <AuthListener />
+
+        <ProfileGuard />
         <Header />
         <main className="flex-1">
           {children}

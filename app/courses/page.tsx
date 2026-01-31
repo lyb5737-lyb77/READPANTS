@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 export default async function CoursesPage({
     searchParams,
 }: {
-    searchParams: { country?: string; region?: string };
+    searchParams: Promise<{ country?: string; region?: string }>;
 }) {
-    const country = searchParams.country || 'Thailand';
-    const region = searchParams.region || 'Pattaya';
+    const params = await searchParams;
+    const country = params.country || 'Thailand';
+    const region = params.region || 'Pattaya';
 
     let courses: Course[] = [];
     try {
@@ -85,7 +86,7 @@ export default async function CoursesPage({
                                     </div>
                                 </div>
 
-                                <Link href={`/courses/${course.id}`} className="w-full">
+                                <Link href={`/courses/${course.id}?country=${country}&region=${region}`} className="w-full">
                                     <Button className="w-full bg-gray-900 hover:bg-red-600 transition-colors">
                                         상세 정보 보기
                                     </Button>

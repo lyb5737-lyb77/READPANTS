@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Users, Heart } from "lucide-react";
 import RecentJoins from "@/components/home/recent-joins";
 import { AdminInquiryDialog } from "@/components/home/admin-inquiry-dialog";
+import { BannerCarousel } from "@/components/home/banner-carousel";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -22,7 +23,7 @@ export default async function Home({
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative w-full py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-red-50 to-white">
+      <section className="relative w-full pt-20 pb-12 lg:pt-32 lg:pb-16 overflow-hidden bg-gradient-to-b from-red-50 to-white">
         <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-red-100 rounded-full blur-3xl opacity-50 animate-pulse" />
         <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-96 h-96 bg-green-100 rounded-full blur-3xl opacity-50" />
 
@@ -40,33 +41,26 @@ export default async function Home({
               설레는 해외 라운딩, 낯선 곳에서의 특별한 만남. <br />
               검증된 매너 골퍼들과 함께 안전하고 즐거운 여행을 떠나보세요.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-4">
-              <Link href="/join">
-                <Button size="lg" className="rounded-full text-base px-8 h-14 bg-primary hover:bg-red-700 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                  지금 조인 참여하기
-                </Button>
-              </Link>
-              <Link href="/guide">
-                <Button size="lg" variant="outline" className="rounded-full text-base px-8 h-14 border-2 hover:bg-gray-50">
-                  이용 가이드 보기
-                </Button>
-              </Link>
-            </div>
 
             {/* Stats / Trust Indicators */}
-            <div className="pt-12 grid grid-cols-3 gap-4 md:gap-16 text-center">
+            <div className="pt-8 pb-12 grid grid-cols-3 gap-4 md:gap-16 text-center border-b border-red-50/50 mb-8 max-w-4xl mx-auto w-full">
               <div className="flex flex-col items-center gap-1">
-                <span className="text-3xl font-bold text-gray-900">1,204+</span>
+                <span className="text-3xl md:text-4xl font-bold text-gray-900 heading-font">1,204+</span>
                 <span className="text-sm text-gray-500 font-medium">누적 매칭</span>
               </div>
               <div className="flex flex-col items-center gap-1">
-                <span className="text-3xl font-bold text-gray-900">98%</span>
+                <span className="text-3xl md:text-4xl font-bold text-gray-900 heading-font">98%</span>
                 <span className="text-sm text-gray-500 font-medium">매너 만족도</span>
               </div>
               <div className="flex flex-col items-center gap-1">
-                <span className="text-3xl font-bold text-gray-900">0건</span>
+                <span className="text-3xl md:text-4xl font-bold text-gray-900 heading-font">0건</span>
                 <span className="text-sm text-gray-500 font-medium">노쇼</span>
               </div>
+            </div>
+
+            {/* Banner Section */}
+            <div className="w-full pb-0 mt-4">
+              <BannerCarousel />
             </div>
           </div>
         </div>

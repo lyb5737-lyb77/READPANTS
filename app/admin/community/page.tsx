@@ -15,6 +15,7 @@ import {
     DEFAULT_POINT_RULES
 } from "@/lib/ranking";
 import { Loader2 } from "lucide-react";
+import { LevelBadge } from "@/components/ui/level-badge";
 
 export default function AdminCommunityPage() {
     const [settings, setSettings] = useState<RankingSettings>({
@@ -32,12 +33,6 @@ export default function AdminCommunityPage() {
         };
         loadSettings();
     }, []);
-
-    const handleRankChange = (index: number, field: keyof RankLevel, value: string | number) => {
-        const newLevels = [...settings.rankLevels];
-        newLevels[index] = { ...newLevels[index], [field]: value };
-        setSettings({ ...settings, rankLevels: newLevels });
-    };
 
     const handlePointChange = (field: 'post' | 'comment', value: string) => {
         const numValue = parseInt(value) || 0;
@@ -60,13 +55,13 @@ export default function AdminCommunityPage() {
         }
     };
 
-    if (loading) return <div className="p-8">로딩 중...</div>;
+    if (loading) return <div className="p-8"><Loader2 className="animate-spin" /></div>;
 
     return (
         <div className="space-y-6">
             <div>
                 <h2 className="text-3xl font-bold tracking-tight">커뮤니티 설정</h2>
-                <p className="text-muted-foreground">커뮤니티 등급 및 포인트 규칙을 관리합니다.</p>
+                <p className="text-muted-foreground">활동 포인트 규칙을 설정하고 등급 정보를 확인합니다.</p>
             </div>
 
             <div className="grid gap-6">
@@ -78,63 +73,70 @@ export default function AdminCommunityPage() {
                     <CardContent className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>게시글 작성 포인트</Label>
-                            <Input
-                                type="number"
-                                value={settings.pointRules.post}
-                                onChange={(e) => handlePointChange('post', e.target.value)}
-                            />
+                            <div className="flex items-center gap-2">
+                                <Input
+                                    type="number"
+                                    value={settings.pointRules.post}
+                                    onChange={(e) => handlePointChange('post', e.target.value)}
+                                    className="max-w-[150px]"
+                                />
+                                <span className="text-sm text-gray-500">점</span>
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label>댓글 작성 포인트</Label>
-                            <Input
-                                type="number"
-                                value={settings.pointRules.comment}
-                                onChange={(e) => handlePointChange('comment', e.target.value)}
-                            />
+                            <div className="flex items-center gap-2">
+                                <Input
+                                    type="number"
+                                    value={settings.pointRules.comment}
+                                    onChange={(e) => handlePointChange('comment', e.target.value)}
+                                    className="max-w-[150px]"
+                                />
+                                <span className="text-sm text-gray-500">점</span>
+                            </div>
+                        </div>
+                        <div className="col-span-2 flex justify-end">
+                            <Button onClick={handleSave} disabled={saving}>
+                                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                포인트 설정 저장
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>등급 레벨 설정</CardTitle>
+                        <CardTitle>등급 레벨 안내</CardTitle>
                         <CardDescription>
-                            총 {settings.rankLevels.length}단계의 등급과 각 등급 달성에 필요한 점수를 설정합니다.
-                            1단계(새싹)는 0점으로 고정하는 것을 권장합니다.
+                            현재 적용 중인 등급 체계입니다. (등급 기준 변경은 개발팀에 문의해주세요)
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {settings.rankLevels.map((rank, index) => (
-                                <div key={index} className="flex gap-4 items-center">
-                                    <div className="w-16 font-bold text-center">Lv.{rank.level}</div>
-                                    <div className="flex-1 space-y-1">
-                                        <Label className="text-xs text-muted-foreground">등급명</Label>
-                                        <Input
-                                            value={rank.name}
-                                            onChange={(e) => handleRankChange(index, 'name', e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <Label className="text-xs text-muted-foreground">필요 점수 (Threshold)</Label>
-                                        <Input
-                                            type="number"
-                                            value={rank.threshold}
-                                            onChange={(e) => handleRankChange(index, 'threshold', parseInt(e.target.value) || 0)}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="rounded-md border">
+                            <table className="w-full text-sm">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left font-medium">레벨</th>
+                                        <th className="px-4 py-2 text-left font-medium">등급명</th>
+                                        <th className="px-4 py-2 text-left font-medium">필요 포인트</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {settings.rankLevels.map((rank) => (
+                                        <tr key={rank.level} className="border-t">
+                                            <td className="px-4 py-2 font-medium">Lv.{rank.level}</td>
+                                            <td className="px-4 py-2">
+                                                <LevelBadge type="community" level={rank.level} />
+                                            </td>
+                                            <td className="px-4 py-2">{rank.threshold.toLocaleString()} P</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </CardContent>
                 </Card>
 
-                <div className="flex justify-end">
-                    <Button onClick={handleSave} disabled={saving} size="lg">
-                        {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        설정 저장
-                    </Button>
-                </div>
             </div>
         </div>
     );

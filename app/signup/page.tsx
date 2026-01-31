@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { USER_LEVELS } from "@/lib/constants/user-levels";
+import { calculateGolfSkillLevel } from "@/lib/constants/levels";
 
 export default function SignupPage() {
     const [nickname, setNickname] = useState("");
@@ -18,6 +19,11 @@ export default function SignupPage() {
     const [phone, setPhone] = useState("");
     const [avgScore, setAvgScore] = useState("");
     const [gender, setGender] = useState<'male' | 'female' | 'other'>('male');
+    const [marketingConsents, setMarketingConsents] = useState({
+        sms: false,
+        email: false,
+        kakao: false
+    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [isGoogleSignup, setIsGoogleSignup] = useState(false);
@@ -56,11 +62,18 @@ export default function SignupPage() {
             await createUser(userCredential.user.uid, {
                 email: userCredential.user.email || email,
                 nickname,
-                phone: phone || undefined,
+                phone: phone || "",
                 gender,
-                level: USER_LEVELS[0].name, // 씨앗 (Lv.1)
+                level: USER_LEVELS[0].name, // Legacy
                 role: 'user',
+
+                // New System
+                activityPoints: 0,
+                communityLevel: 1,
                 avgScore: Number(avgScore),
+                golfSkillLevel: calculateGolfSkillLevel(Number(avgScore)).level,
+
+                marketingConsents,
                 createdAt: new Date().toISOString()
             });
 
@@ -116,11 +129,18 @@ export default function SignupPage() {
             await createUser(user.uid, {
                 email: user.email || email,
                 nickname,
-                phone: phone || undefined,
+                phone: phone || "",
                 gender,
-                level: USER_LEVELS[0].name, // 씨앗 (Lv.1)
+                level: USER_LEVELS[0].name, // Legacy
                 role: 'user',
+
+                // New System
+                activityPoints: 0,
+                communityLevel: 1,
                 avgScore: Number(avgScore),
+                golfSkillLevel: calculateGolfSkillLevel(Number(avgScore)).level,
+
+                marketingConsents,
                 createdAt: new Date().toISOString()
             });
 
@@ -216,16 +236,57 @@ export default function SignupPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label htmlFor="phone" className="text-sm font-medium text-gray-700">휴대폰번호</label>
-                                <input
-                                    id="phone"
-                                    type="tel"
-                                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                                    placeholder="010-1234-5678"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                />
+                                <label htmlFor="phone" className="text-sm font-medium text-gray-700">휴대폰번호 *</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        id="phone"
+                                        type="tel"
+                                        required
+                                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                        placeholder="010-1234-5678"
+                                        value={phone}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[^0-9]/g, '').replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+                                            setPhone(val);
+                                        }}
+                                        maxLength={13}
+                                    />
+                                </div>
                             </div>
+
+                            <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                                <label className="text-sm font-medium text-gray-900 block">마케팅 정보 수신 동의 (선택)</label>
+                                <div className="flex gap-4">
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={marketingConsents.sms}
+                                            onChange={(e) => setMarketingConsents({ ...marketingConsents, sms: e.target.checked })}
+                                            className="form-checkbox h-4 w-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                                        />
+                                        <span className="text-sm text-gray-700">문자(SMS)</span>
+                                    </label>
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={marketingConsents.kakao}
+                                            onChange={(e) => setMarketingConsents({ ...marketingConsents, kakao: e.target.checked })}
+                                            className="form-checkbox h-4 w-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                                        />
+                                        <span className="text-sm text-gray-700">카카오톡</span>
+                                    </label>
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={marketingConsents.email}
+                                            onChange={(e) => setMarketingConsents({ ...marketingConsents, email: e.target.checked })}
+                                            className="form-checkbox h-4 w-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                                        />
+                                        <span className="text-sm text-gray-700">이메일</span>
+                                    </label>
+                                </div>
+                            </div>
+
                             <div className="space-y-2">
                                 <label htmlFor="avgScore" className="text-sm font-medium text-gray-700">평균타수 *</label>
                                 <input

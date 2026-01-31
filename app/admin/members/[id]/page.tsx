@@ -12,13 +12,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2, User, Save, ArrowLeft } from "lucide-react";
 
 import { getUser, updateUser, UserProfile } from "@/lib/db/users";
-import { USER_LEVELS } from "@/lib/constants/user-levels";
+import { COMMUNITY_LEVELS, calculateCommunityLevel, calculateGolfSkillLevel } from "@/lib/constants/levels";
 
 const formSchema = z.object({
     nickname: z.string().min(2, "닉네임은 2글자 이상이어야 합니다."),
-    level: z.string(),
-    role: z.string(),
+    activityPoints: z.coerce.number().min(0, "포인트는 0 이상이어야 합니다."),
     avgScore: z.coerce.number().min(0).max(150),
+    role: z.string(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,9 +47,9 @@ export default function MemberEditPage({ params }: PageProps) {
                 if (userData) {
                     reset({
                         nickname: userData.nickname,
-                        level: userData.level,
-                        role: userData.role,
+                        activityPoints: userData.activityPoints || 0,
                         avgScore: userData.avgScore,
+                        role: userData.role,
                     });
                 }
             } catch (error) {
@@ -66,9 +66,11 @@ export default function MemberEditPage({ params }: PageProps) {
         try {
             await updateUser(userId, {
                 nickname: data.nickname,
-                level: data.level,
-                role: data.role as 'user' | 'admin',
+                activityPoints: data.activityPoints,
+                communityLevel: calculateCommunityLevel(data.activityPoints).level,
                 avgScore: data.avgScore,
+                golfSkillLevel: calculateGolfSkillLevel(data.avgScore).level,
+                role: data.role as 'user' | 'admin',
             });
             alert("회원 정보가 수정되었습니다.");
             router.push("/admin/members");
@@ -149,24 +151,20 @@ export default function MemberEditPage({ params }: PageProps) {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="level">회원 등급</Label>
-                                <select
-                                    id="level"
-                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                    {...register("level")}
-                                >
-                                    {USER_LEVELS.map((level) => (
-                                        <option key={level.id} value={level.name}>
-                                            {level.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                <Label htmlFor="activityPoints">활동 포인트</Label>
+                                <Input id="activityPoints" type="number" {...register("activityPoints")} />
+                                <p className="text-xs text-gray-500">
+                                    * 포인트에 따라 커뮤니티 등급이 자동 산정됩니다.
+                                </p>
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="avgScore">평균 타수</Label>
                                 <Input id="avgScore" type="number" {...register("avgScore")} />
                                 {errors.avgScore && <p className="text-xs text-red-500">{errors.avgScore.message}</p>}
+                                <p className="text-xs text-gray-500">
+                                    * 타수에 따라 골프 실력 등급이 자동 산정됩니다.
+                                </p>
                             </div>
                         </div>
 
