@@ -8,28 +8,39 @@ import { useUIStore } from "@/lib/store/ui-store";
 export function SplashScreen() {
     const { showSplash, setShowSplash } = useUIStore();
     const [isMounted, setIsMounted] = useState(false);
+    const [forceHide, setForceHide] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
-        // Only show splash on mobile/initial load? 
-        // For now, show on every load but we can optimize later.
+        // Hide splash after 2 seconds
         const timer = setTimeout(() => {
             setShowSplash(false);
-        }, 2000); // 2 seconds splash
+        }, 2000);
 
-        return () => clearTimeout(timer);
+        // Force hide after 3 seconds as a failsafe
+        const failsafeTimer = setTimeout(() => {
+            setForceHide(true);
+        }, 3000);
+
+        return () => {
+            clearTimeout(timer);
+            clearTimeout(failsafeTimer);
+        };
     }, [setShowSplash]);
 
-    if (!isMounted) return null;
+    // Don't render on server or if forcefully hidden
+    if (!isMounted || forceHide) return null;
 
     return (
         <AnimatePresence>
-            {showSplash && (
+            {showSplash && !forceHide && (
                 <motion.div
                     className="fixed inset-0 z-[100] flex items-center justify-center bg-white"
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5 }}
+                    // Allow clicks to pass through during fade out
+                    style={{ pointerEvents: showSplash ? 'auto' : 'none' }}
                 >
                     <motion.img
                         layoutId="main-logo"
@@ -43,3 +54,4 @@ export function SplashScreen() {
         </AnimatePresence>
     );
 }
+

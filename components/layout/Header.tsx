@@ -198,19 +198,18 @@ function HeaderContent() {
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="md:hidden"
+                    <button
+                        type="button"
+                        className="md:hidden relative z-50 flex items-center justify-center w-12 h-12 -mr-2 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        aria-label={mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
                     >
                         {mobileMenuOpen ? (
-                            <X className="h-6 w-6" />
+                            <X className="h-7 w-7 text-gray-700" />
                         ) : (
-                            <Menu className="h-6 w-6" />
+                            <Menu className="h-7 w-7 text-gray-700" />
                         )}
-                        <span className="sr-only">메뉴 {mobileMenuOpen ? '닫기' : '열기'}</span>
-                    </Button>
+                    </button>
                 </div>
             </div>
 
