@@ -47,6 +47,18 @@ export async function updateJoin(id: string, data: Partial<Join>): Promise<void>
 }
 
 export async function deleteJoin(id: string): Promise<void> {
+    // 1. 해당 조인의 모든 참가자(신청) 데이터 삭제
+    const participantsQuery = query(
+        collection(db, "joinParticipants"),
+        where("joinId", "==", id)
+    );
+    const participantsSnapshot = await getDocs(participantsQuery);
+
+    // 모든 참가자 문서 삭제
+    const deletePromises = participantsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+
+    // 2. 조인 문서 삭제
     await deleteDoc(doc(db, COLLECTION_NAME, id));
 }
 

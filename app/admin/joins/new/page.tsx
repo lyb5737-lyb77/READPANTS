@@ -219,28 +219,28 @@ export default function NewJoinPage() {
                 <Card className="mt-6">
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <DollarSign className="w-5 h-5 text-primary" /> 비용 안내 (1인 기준, THB)
+                            <DollarSign className="w-5 h-5 text-primary" /> 비용 안내 (1인 기준)
                         </CardTitle>
-                        <CardDescription>모든 비용은 태국 바트(THB) 기준입니다</CardDescription>
+                        <CardDescription>비용은 해당 국가 통화 기준입니다</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="greenFee">그린피 (THB)</Label>
+                            <Label htmlFor="greenFee">그린피</Label>
                             <Input id="greenFee" type="number" placeholder="0" {...register("greenFee")} />
                             {errors.greenFee && <p className="text-xs text-red-500">{errors.greenFee.message}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="caddyFee">캐디피 (THB)</Label>
+                            <Label htmlFor="caddyFee">캐디피</Label>
                             <Input id="caddyFee" type="number" placeholder="0" {...register("caddyFee")} />
                             {errors.caddyFee && <p className="text-xs text-red-500">{errors.caddyFee.message}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="cartFee">카트비 (THB)</Label>
+                            <Label htmlFor="cartFee">카트비</Label>
                             <Input id="cartFee" type="number" placeholder="0" {...register("cartFee")} />
                             {errors.cartFee && <p className="text-xs text-red-500">{errors.cartFee.message}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="transportFee">교통비 (THB)</Label>
+                            <Label htmlFor="transportFee">교통비</Label>
                             <Input id="transportFee" type="number" placeholder="0" {...register("transportFee")} />
                             {errors.transportFee && <p className="text-xs text-red-500">{errors.transportFee.message}</p>}
                         </div>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { useState, useEffect } from "react";
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { createUser } from "@/lib/db/users";
 import { useRouter } from "next/navigation";
@@ -27,7 +27,38 @@ export default function SignupPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [isGoogleSignup, setIsGoogleSignup] = useState(false);
+    const [redirectLoading, setRedirectLoading] = useState(false);
     const router = useRouter();
+
+    // Check if device is mobile
+    const isMobile = () => {
+        if (typeof window === 'undefined') return false;
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    };
+
+    // Handle redirect result when user returns from Google login (mobile only)
+    useEffect(() => {
+        const handleRedirectResult = async () => {
+            try {
+                setRedirectLoading(true);
+                const result = await getRedirectResult(auth);
+                if (result?.user) {
+                    // Check if user profile exists
+                    setEmail(result.user.email || "");
+                    setNickname(result.user.displayName || "");
+                    setIsGoogleSignup(true);
+                }
+            } catch (err: any) {
+                console.error("Redirect error:", err);
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    setError("구글 로그인 중 오류가 발생했습니다.");
+                }
+            } finally {
+                setRedirectLoading(false);
+            }
+        };
+        handleRedirectResult();
+    }, []);
 
     const handleEmailSignup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -93,16 +124,22 @@ export default function SignupPage() {
     const handleGoogleSignup = async () => {
         setLoading(true);
         setError("");
+        const provider = new GoogleAuthProvider();
 
         try {
-            const provider = new GoogleAuthProvider();
-            const result = await signInWithPopup(auth, provider);
-
-            // Show additional info form for Google users
-            setIsGoogleSignup(true);
-            setEmail(result.user.email || "");
-            setNickname(result.user.displayName || "");
-            setLoading(false);
+            if (isMobile()) {
+                // Use redirect for mobile devices
+                await signInWithRedirect(auth, provider);
+                // The page will redirect to Google, then come back
+            } else {
+                // Use popup for desktop devices
+                const result = await signInWithPopup(auth, provider);
+                // Show additional info form for Google users
+                setIsGoogleSignup(true);
+                setEmail(result.user.email || "");
+                setNickname(result.user.displayName || "");
+                setLoading(false);
+            }
         } catch (err: any) {
             console.error(err);
             setError("Google 로그인 중 오류가 발생했습니다.");

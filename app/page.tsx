@@ -23,7 +23,7 @@ export default async function Home({
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative w-full pt-20 pb-12 lg:pt-32 lg:pb-16 overflow-hidden bg-gradient-to-b from-red-50 to-white">
+      <section className="relative w-full pt-14 pb-12 lg:pt-24 lg:pb-16 overflow-hidden bg-gradient-to-b from-red-50 to-white">
         <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-red-100 rounded-full blur-3xl opacity-50 animate-pulse" />
         <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-96 h-96 bg-green-100 rounded-full blur-3xl opacity-50" />
 

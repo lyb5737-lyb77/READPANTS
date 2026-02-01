@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Users, Clock, Filter, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatPrice } from "@/lib/constants/currencies";
 
 function JoinPageContent() {
     const searchParams = useSearchParams();
@@ -58,18 +59,11 @@ function JoinPageContent() {
     return (
         <div className="container mx-auto px-4 py-8 pb-24">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-900">골프 조인</h1>
-                    <p className="text-gray-500 mt-1">
-                        {country === 'Thailand' ? '태국' : country} {region === 'Pattaya' ? '파타야' : region} 지역의 라운딩 동반자를 찾아보세요.
-                    </p>
-                </div>
-                <Link href="/join/new">
-                    <Button className="bg-red-600 hover:bg-red-700 text-white shadow-md transition-all hover:shadow-lg">
-                        조인 등록하기
-                    </Button>
-                </Link>
+            <div className="mb-8">
+                <h1 className="text-2xl font-bold tracking-tight text-gray-900">골프 조인</h1>
+                <p className="text-gray-500 mt-1">
+                    {country === 'Thailand' ? '태국' : country} {region === 'Pattaya' ? '파타야' : region} 지역의 라운딩 동반자를 찾아보세요.
+                </p>
             </div>
 
             {/* Filters */}
@@ -136,7 +130,7 @@ function JoinPageContent() {
                                             </div>
                                             <div className="flex items-center text-sm text-gray-600">
                                                 <div className="w-4 mr-2 flex justify-center text-gray-400">￦</div>
-                                                {join.greenFee ? `${join.greenFee.toLocaleString()} THB` : '비용 문의'}
+                                                {join.greenFee ? formatPrice(join.greenFee, country) : '비용 문의'}
                                             </div>
                                         </div>
                                     </div>

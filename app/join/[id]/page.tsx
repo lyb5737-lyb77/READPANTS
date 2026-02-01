@@ -4,13 +4,17 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Users, Clock, DollarSign, User, ArrowLeft, CheckCircle } from "lucide-react";
 import { JoinActionButton } from "@/components/join/join-action-button";
+import { formatPrice, getCurrency } from "@/lib/constants/currencies";
 
 interface PageProps {
     params: Promise<{ id: string }>;
+    searchParams: Promise<{ country?: string; region?: string }>;
 }
 
-export default async function JoinDetailPage({ params }: PageProps) {
+export default async function JoinDetailPage({ params, searchParams }: PageProps) {
     const { id } = await params;
+    const { country = 'Thailand' } = await searchParams;
+    const currency = getCurrency(country);
     const join = await getJoin(id);
 
     if (!join) {
@@ -82,29 +86,29 @@ export default async function JoinDetailPage({ params }: PageProps) {
                         <section>
                             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
                                 <DollarSign className="h-5 w-5 mr-2 text-red-600" />
-                                비용 안내 (1인 기준, THB)
+                                비용 안내 (1인 기준, {currency.code})
                             </h2>
                             <div className="grid grid-cols-2 gap-4 text-center">
                                 <div className="p-4 border rounded-xl">
                                     <p className="text-sm text-gray-500 mb-1">그린피</p>
-                                    <p className="font-bold text-lg">{join.greenFee.toLocaleString()}฿</p>
+                                    <p className="font-bold text-lg">{formatPrice(join.greenFee, country)}</p>
                                 </div>
                                 <div className="p-4 border rounded-xl">
                                     <p className="text-sm text-gray-500 mb-1">캐디피</p>
-                                    <p className="font-bold text-lg">{join.caddyFee.toLocaleString()}฿</p>
+                                    <p className="font-bold text-lg">{formatPrice(join.caddyFee, country)}</p>
                                 </div>
                                 <div className="p-4 border rounded-xl">
                                     <p className="text-sm text-gray-500 mb-1">카트비</p>
-                                    <p className="font-bold text-lg">{join.cartFee.toLocaleString()}฿</p>
+                                    <p className="font-bold text-lg">{formatPrice(join.cartFee, country)}</p>
                                 </div>
                                 {join.transportFee !== undefined && join.transportFee > 0 && (
                                     <div className="p-4 border rounded-xl">
                                         <p className="text-sm text-gray-500 mb-1">교통비</p>
-                                        <p className="font-bold text-lg">{join.transportFee.toLocaleString()}฿</p>
+                                        <p className="font-bold text-lg">{formatPrice(join.transportFee, country)}</p>
                                     </div>
                                 )}
                             </div>
-                            <p className="mt-2 text-xs text-gray-500 text-right">* 캐디팁 별도</p>
+                            <p className="mt-2 text-xs text-gray-500 text-right">* 캐디팅 별도</p>
                         </section>
                     </div>
 

@@ -94,7 +94,7 @@ function HeaderContent() {
                     {/* Premium Well Link */}
                     <Link
                         href="/premium"
-                        className="flex items-center justify-center p-2 rounded-full hover:bg-gray-50 transition-colors group relative"
+                        className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-50 transition-colors group relative"
                         title="정보나눔 우물터 (골드 등급 이상)"
                     >
                         <div className="relative w-7 h-7">
@@ -105,6 +105,7 @@ function HeaderContent() {
                                 className="object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
                             />
                         </div>
+                        <span className="text-[10px] text-gray-500 group-hover:text-gray-900 mt-0.5">고인물</span>
                     </Link>
 
                     {/* YouTube Link */}
@@ -293,9 +294,18 @@ function HeaderContent() {
                                                     <span className="text-sm font-medium text-gray-900">
                                                         {userProfile?.nickname || user.displayName || user.email?.split('@')[0]}님
                                                     </span>
-                                                    {userProfile?.level && (
-                                                        <UserLevelBadge levelName={userProfile.level} className="h-5 px-1.5 text-[10px]" />
-                                                    )}
+                                                </div>
+                                                <div className="flex gap-1 mt-1">
+                                                    <LevelBadge
+                                                        type="community"
+                                                        level={userProfile?.communityLevel || 1}
+                                                        size="sm"
+                                                    />
+                                                    <LevelBadge
+                                                        type="golf"
+                                                        level={userProfile?.golfSkillLevel || 1}
+                                                        size="sm"
+                                                    />
                                                 </div>
                                                 <span className="text-xs text-gray-500">{user.email}</span>
                                             </div>

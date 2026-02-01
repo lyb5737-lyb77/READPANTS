@@ -7,6 +7,7 @@ import { Calendar, Users, MapPin, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { CustomRequestCard } from "@/components/home/custom-request-card";
+import { formatPrice } from "@/lib/constants/currencies";
 
 // Force dynamic rendering - no caching
 export const dynamic = 'force-dynamic';
@@ -165,7 +166,7 @@ export default async function RecentJoins({
                                             {join.currentMembers}/{join.maxMembers}명
                                         </div>
                                         <div className="font-bold text-red-600">
-                                            {Number(join.greenFee).toLocaleString()}฿~
+                                            {formatPrice(join.greenFee, country)}~
                                         </div>
                                     </div>
                                 </div>
