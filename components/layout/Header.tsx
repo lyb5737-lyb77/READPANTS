@@ -217,8 +217,23 @@ function HeaderContent() {
             {/* Mobile Menu Drawer */}
             {
                 mobileMenuOpen && (
-                    <div className="md:hidden border-t bg-white">
+                    <div className="md:hidden border-t bg-white max-h-[80vh] overflow-y-auto">
                         <div className="container px-4 py-4 space-y-4">
+                            {/* Auth Section - Show login/signup at top for non-logged users */}
+                            {!loading && !user && (
+                                <div className="flex gap-2 pb-3 border-b">
+                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                                        <Button variant="outline" className="w-full text-gray-700 hover:text-red-600 hover:border-red-200">
+                                            로그인
+                                        </Button>
+                                    </Link>
+                                    <Link href="/signup" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                                            회원가입
+                                        </Button>
+                                    </Link>
+                                </div>
+                            )}
                             {/* Navigation Links */}
                             <nav className="flex flex-col gap-3">
                                 {[
@@ -257,28 +272,9 @@ function HeaderContent() {
                                     </div>
                                 </Link>
                             </nav>
-                            <nav className="flex gap-4">
-                                {isAdmin(userProfile) && (
-                                    <Link
-                                        href="/admin"
-                                        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-slate-800 rounded-md hover:bg-slate-700 transition-colors border border-slate-700 shadow-sm"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        관리자
-                                    </Link>
-                                )}
-                                <button
-                                    onClick={handleLogout}
-                                    className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
-                                >
-                                    로그아웃
-                                </button>
-                            </nav>
-                            {/* Divider */}
-                            <div className="border-t" />
+
+                            {/* Divider - only show if user is logged in */}
+                            {user && <div className="border-t" />}
 
                             {/* Auth Section */}
                             {!loading && (
@@ -331,20 +327,7 @@ function HeaderContent() {
                                             로그아웃
                                         </Button>
                                     </div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                                            <Button variant="outline" className="w-full text-gray-700 hover:text-red-600 hover:border-red-200">
-                                                로그인
-                                            </Button>
-                                        </Link>
-                                        <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                                            <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
-                                                회원가입
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                )
+                                ) : null
                             )}
                         </div>
                     </div>

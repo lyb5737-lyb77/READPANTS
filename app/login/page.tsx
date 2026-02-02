@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,14 @@ export default function LoginPage() {
             try {
                 const result = await getRedirectResult(auth);
                 if (result?.user) {
-                    router.push("/");
+                    // 사용자 프로필 존재 확인
+                    const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+                    if (userDoc.exists()) {
+                        router.push("/");
+                    } else {
+                        // 새 사용자 - 회원가입 페이지로 리디렉션하여 추가 정보 입력
+                        router.push("/signup?googleUser=true");
+                    }
                 }
             } catch (err: any) {
                 console.error("Redirect error:", err);
