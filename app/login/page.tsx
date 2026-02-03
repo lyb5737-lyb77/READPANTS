@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from "firebase/auth";
+import { useState } from "react";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -17,36 +17,6 @@ export default function LoginPage() {
     const [error, setError] = useState("");
     const router = useRouter();
 
-    // Check if device is mobile
-    const isMobile = () => {
-        if (typeof window === 'undefined') return false;
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    };
-
-    // Handle redirect result when user returns from Google login (mobile only)
-    useEffect(() => {
-        const handleRedirectResult = async () => {
-            try {
-                const result = await getRedirectResult(auth);
-                if (result?.user) {
-                    // 사용자 프로필 존재 확인
-                    const userDoc = await getDoc(doc(db, 'users', result.user.uid));
-                    if (userDoc.exists()) {
-                        router.push("/");
-                    } else {
-                        // 새 사용자 - 회원가입 페이지로 리디렉션하여 추가 정보 입력
-                        router.push("/signup?googleUser=true");
-                    }
-                }
-            } catch (err: any) {
-                console.error("Redirect error:", err);
-                if (err.code !== 'auth/popup-closed-by-user') {
-                    setError("구글 로그인 중 오류가 발생했습니다.");
-                }
-            }
-        };
-        handleRedirectResult();
-    }, [router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -76,18 +46,26 @@ export default function LoginPage() {
         const provider = new GoogleAuthProvider();
 
         try {
-            if (isMobile()) {
-                // Use redirect for mobile devices
-                await signInWithRedirect(auth, provider);
-                // The page will redirect to Google, then come back
-            } else {
-                // Use popup for desktop devices
-                await signInWithPopup(auth, provider);
+            // 모바일/데스크탑 모두 popup 사용 (최신 브라우저는 사용자 클릭으로 시작된 팝업 허용)
+            const result = await signInWithPopup(auth, provider);
+
+            // 사용자 프로필 존재 확인
+            const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+            if (userDoc.exists()) {
                 router.push("/");
+            } else {
+                // 새 사용자 - 회원가입 페이지로 리디렉션하여 추가 정보 입력
+                router.push("/signup?googleUser=true");
             }
         } catch (err: any) {
             console.error(err);
-            setError("구글 로그인 중 오류가 발생했습니다.");
+            if (err.code === 'auth/popup-closed-by-user') {
+                setError("로그인이 취소되었습니다.");
+            } else if (err.code === 'auth/popup-blocked') {
+                setError("팝업이 차단되었습니다. 팝업 차단을 해제해주세요.");
+            } else {
+                setError("구글 로그인 중 오류가 발생했습니다. (" + err.code + ")");
+            }
             setLoading(false);
         }
     };
