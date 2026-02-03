@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Menu, User, LogOut, LayoutDashboard, X } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, X, Users, MapPin, Star, FileText, HelpCircle, Youtube, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { isAdmin } from "@/lib/db/users";
@@ -214,125 +214,109 @@ function HeaderContent() {
                 </div>
             </div>
 
-            {/* Mobile Menu Drawer */}
-            {
-                mobileMenuOpen && (
-                    <div className="md:hidden border-t bg-white max-h-[80vh] overflow-y-auto">
-                        <div className="container px-4 py-4 space-y-4">
-                            {/* Auth Section - Show login/signup at top for non-logged users */}
-                            {!loading && !user && (
-                                <div className="flex gap-2 pb-3 border-b">
-                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1">
-                                        <Button variant="outline" className="w-full text-gray-700 hover:text-red-600 hover:border-red-200">
-                                            로그인
-                                        </Button>
-                                    </Link>
-                                    <Link href="/signup" onClick={() => setMobileMenuOpen(false)} className="flex-1">
-                                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
-                                            회원가입
-                                        </Button>
-                                    </Link>
+
+            {/* Mobile Menu Drawer - Premium Grid Design */}
+            {mobileMenuOpen && (
+                <motion.div
+                    className="md:hidden fixed inset-x-0 top-20 bg-white/95 backdrop-blur-lg border-b shadow-xl z-40"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                >
+                    <div className="container px-4 py-5 max-h-[calc(100vh-6rem)] overflow-y-auto">
+                        {/* User Section - Compact for logged in users */}
+                        {!loading && user && (
+                            <div className="flex items-center gap-3 mb-4 p-3 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl">
+                                <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-red-600 border border-red-100">
+                                    <User className="h-5 w-5" />
                                 </div>
-                            )}
-                            {/* Navigation Links */}
-                            <nav className="flex flex-col gap-3">
-                                {[
-                                    { href: "/join", label: "GOLF JOIN", subLabel: "골프 조인" },
-                                    { href: "/courses", label: "COURSES", subLabel: "골프장 소개" },
-                                    { href: "/reviews", label: "REVIEWS", subLabel: region ? `${region === 'Pattaya' ? '파타야' : region === 'Haiphong' ? '하이퐁' : region} 탐방 후기` : "이용 후기" },
-                                    { href: "/quotes", label: "QUOTES", subLabel: "여행 견적" },
-                                    { href: "/guide", label: "GUIDE", subLabel: "이용 가이드" },
-                                ].map((item) => (
-                                    <Link
-                                        key={item.href}
-                                        href={getLinkWithParams(item.href)}
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className="flex flex-col px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors"
-                                    >
-                                        <span className="text-sm font-bold tracking-wider text-gray-900">
-                                            {item.label}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-semibold text-gray-900 truncate">
+                                            {userProfile?.nickname || user.displayName || '회원'}님
                                         </span>
-                                        <span className="text-xs text-gray-500 mt-0.5">
-                                            {item.subLabel}
-                                        </span>
-                                    </Link>
-                                ))}
-                                {/* Mobile Premium Well */}
-                                <Link
-                                    href="/premium"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors"
-                                >
-                                    <div className="relative w-6 h-6">
-                                        <Image src="/images/well-icon.png" alt="Well" fill className="object-contain" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-bold tracking-wider text-gray-900">WELL</span>
-                                        <span className="text-xs text-gray-500 mt-0.5">정보나눔 우물터 (Gold+)</span>
-                                    </div>
-                                </Link>
-                            </nav>
-
-                            {/* Divider - only show if user is logged in */}
-                            {user && <div className="border-t" />}
-
-                            {/* Auth Section */}
-                            {!loading && (
-                                user ? (
-                                    <div className="space-y-3">
-                                        {/* User Info */}
-                                        <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                                                <User className="h-5 w-5" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-sm font-medium text-gray-900">
-                                                        {userProfile?.nickname || user.displayName || user.email?.split('@')[0]}님
-                                                    </span>
-                                                </div>
-                                                <div className="flex gap-1 mt-1">
-                                                    <LevelBadge
-                                                        type="community"
-                                                        level={userProfile?.communityLevel || 1}
-                                                        size="sm"
-                                                    />
-                                                    <LevelBadge
-                                                        type="golf"
-                                                        level={userProfile?.golfSkillLevel || 1}
-                                                        size="sm"
-                                                    />
-                                                </div>
-                                                <span className="text-xs text-gray-500">{user.email}</span>
-                                            </div>
+                                        <div className="flex gap-1">
+                                            <LevelBadge type="community" level={userProfile?.communityLevel || 1} size="sm" />
+                                            <LevelBadge type="golf" level={userProfile?.golfSkillLevel || 1} size="sm" />
                                         </div>
-
-                                        {/* Admin Button */}
-                                        {userProfile?.role === 'admin' && (
-                                            <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                                                <Button variant="outline" className="w-full text-red-600 border-red-200 hover:bg-red-50">
-                                                    <LayoutDashboard className="h-4 w-4 mr-2" />
-                                                    관리자 페이지
-                                                </Button>
-                                            </Link>
-                                        )}
-
-                                        {/* Logout Button */}
-                                        <Button
-                                            variant="outline"
-                                            className="w-full text-gray-700 hover:text-red-600 hover:border-red-200"
-                                            onClick={handleLogout}
-                                        >
-                                            <LogOut className="h-4 w-4 mr-2" />
-                                            로그아웃
-                                        </Button>
                                     </div>
-                                ) : null
+                                </div>
+                                <button
+                                    onClick={handleLogout}
+                                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                    title="로그아웃"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Login/Signup for non-logged users */}
+                        {!loading && !user && (
+                            <div className="flex gap-2 mb-4">
+                                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                                    <Button variant="outline" size="sm" className="w-full text-gray-700 hover:text-red-600 hover:border-red-300">
+                                        로그인
+                                    </Button>
+                                </Link>
+                                <Link href="/signup" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                                    <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white shadow-md">
+                                        회원가입
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
+
+                        {/* Navigation Grid - 2 columns */}
+                        <nav className="grid grid-cols-2 gap-2">
+                            {[
+                                { href: "/join", icon: Users, label: "골프 조인", color: "text-blue-600", bg: "bg-blue-50" },
+                                { href: "/courses", icon: MapPin, label: "골프장 소개", color: "text-green-600", bg: "bg-green-50" },
+                                { href: "/reviews", icon: Star, label: region === 'Pattaya' ? '파타야 후기' : region === 'Haiphong' ? '하이퐁 후기' : '탐방 후기', color: "text-yellow-600", bg: "bg-yellow-50" },
+                                { href: "/quotes", icon: FileText, label: "여행 견적", color: "text-purple-600", bg: "bg-purple-50" },
+                                { href: "/guide", icon: HelpCircle, label: "이용 가이드", color: "text-cyan-600", bg: "bg-cyan-50" },
+                                { href: "/premium", icon: Sparkles, label: "고인물 우물터", color: "text-amber-600", bg: "bg-amber-50" },
+                            ].map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href === "/premium" ? "/premium" : getLinkWithParams(item.href)}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`flex items-center gap-3 p-3 rounded-xl ${item.bg} hover:scale-[0.98] active:scale-95 transition-all duration-200`}
+                                >
+                                    <item.icon className={`h-5 w-5 ${item.color}`} />
+                                    <span className="text-sm font-medium text-gray-800">{item.label}</span>
+                                </Link>
+                            ))}
+                        </nav>
+
+                        {/* Bottom Actions */}
+                        <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                            {/* YouTube Link */}
+                            <Link
+                                href="/youtube"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="flex-1 flex items-center justify-center gap-2 p-3 bg-gray-50 rounded-xl hover:bg-red-50 transition-colors"
+                            >
+                                <Youtube className="h-5 w-5 text-red-500" />
+                                <span className="text-sm font-medium text-gray-700">유튜브</span>
+                            </Link>
+
+                            {/* Admin Link - only for admins */}
+                            {userProfile?.role === 'admin' && (
+                                <Link
+                                    href="/admin"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="flex-1 flex items-center justify-center gap-2 p-3 bg-red-50 rounded-xl hover:bg-red-100 transition-colors"
+                                >
+                                    <LayoutDashboard className="h-5 w-5 text-red-600" />
+                                    <span className="text-sm font-medium text-red-700">관리자</span>
+                                </Link>
                             )}
                         </div>
                     </div>
-                )
-            }
+                </motion.div>
+            )}
         </header >
     );
 }
