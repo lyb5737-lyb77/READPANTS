@@ -12,6 +12,6 @@ interface RegionStore {
 }
 
 export const useRegionStore = create<RegionStore>((set) => ({
-    selectedRegion: { country: 'Thailand', region: 'Pattaya' },
+    selectedRegion: { country: 'Vietnam', region: 'Haiphong' },
     setSelectedRegion: (region) => set({ selectedRegion: region }),
 }));

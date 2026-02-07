@@ -14,35 +14,35 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function RecentJoins({
-    country = 'Thailand',
-    region = 'Pattaya',
+    country = 'Vietnam',
+    region = 'Haiphong',
 }: {
     country?: string;
     region?: string;
 }) {
-    console.log('==========================================');
-    console.log('[RecentJoins] Props received:');
-    console.log('  - country:', country, '(type:', typeof country, ')');
-    console.log('  - region:', region, '(type:', typeof region, ')');
-    console.log('==========================================');
+    // console.log('==========================================');
+    // console.log('[RecentJoins] Props received:');
+    // console.log('  - country:', country, '(type:', typeof country, ')');
+    // console.log('  - region:', region, '(type:', typeof region, ')');
+    // console.log('==========================================');
 
     let joinsWithCourse: any[] = [];
 
     try {
         const allJoins = await getJoins(undefined, 100);
-        console.log('[RecentJoins] Total joins from DB:', allJoins.length);
+        // console.log('[RecentJoins] Total joins from DB:', allJoins.length);
 
         // Log each join's country and region
-        allJoins.forEach((join, index) => {
-            console.log(`[RecentJoins] Join ${index + 1}:`, {
-                id: join.id,
-                courseName: join.courseName,
-                country: join.country,
-                region: join.region,
-                countryType: typeof join.country,
-                regionType: typeof join.region,
-            });
-        });
+        // allJoins.forEach((join, index) => {
+        //     console.log(`[RecentJoins] Join ${index + 1}:`, {
+        //         id: join.id,
+        //         courseName: join.courseName,
+        //         country: join.country,
+        //         region: join.region,
+        //         countryType: typeof join.country,
+        //         regionType: typeof join.region,
+        //     });
+        // });
 
         // 선택된 지역의 조인만 필터링
         const filteredJoins = allJoins.filter((join) => {
@@ -50,23 +50,23 @@ export default async function RecentJoins({
             const regionMatch = join.region === region;
             const overallMatch = countryMatch && regionMatch;
 
-            console.log(`[RecentJoins] Filtering ${join.courseName}:`, {
-                joinCountry: join.country,
-                expectedCountry: country,
-                countryMatch,
-                joinRegion: join.region,
-                expectedRegion: region,
-                regionMatch,
-                overallMatch
-            });
+            // console.log(`[RecentJoins] Filtering ${join.courseName}:`, {
+            //     joinCountry: join.country,
+            //     expectedCountry: country,
+            //     countryMatch,
+            //     joinRegion: join.region,
+            //     expectedRegion: region,
+            //     regionMatch,
+            //     overallMatch
+            // });
 
             return overallMatch;
-        }).slice(0, 6);
+        }).slice(0, 7);
 
-        console.log('==========================================');
-        console.log('[RecentJoins] Filtered joins count:', filteredJoins.length);
-        console.log('[RecentJoins] Filtered join names:', filteredJoins.map(j => j.courseName));
-        console.log('==========================================');
+        // console.log('==========================================');
+        // console.log('[RecentJoins] Filtered joins count:', filteredJoins.length);
+        // console.log('[RecentJoins] Filtered join names:', filteredJoins.map(j => j.courseName));
+        // console.log('==========================================');
 
 
         // Fetch course details for each join
@@ -109,7 +109,7 @@ export default async function RecentJoins({
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <CustomRequestCard courses={courses} />
                     {joinsWithCourse.map((join) => (
                         <div key={join.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full">

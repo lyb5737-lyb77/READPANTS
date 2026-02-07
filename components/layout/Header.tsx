@@ -29,8 +29,8 @@ function HeaderContent() {
     const { user, userProfile, loading } = useAuthStore();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const country = searchParams.get('country') || 'Thailand';
-    const region = searchParams.get('region') || 'Pattaya';
+    const country = searchParams.get('country') || 'Vietnam';
+    const region = searchParams.get('region') || 'Haiphong';
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const handleLogout = async () => {
@@ -91,21 +91,21 @@ function HeaderContent() {
 
                     <div className="h-4 w-px bg-gray-300 mx-2" />
 
-                    {/* Premium Well Link */}
+                    {/* VIP Room Link */}
                     <Link
                         href="/premium"
-                        className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-50 transition-colors group relative"
-                        title="정보나눔 우물터 (골드 등급 이상)"
+                        className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gradient-to-b hover:from-amber-50 hover:to-yellow-50 transition-all group relative"
+                        title="VIP룸 (골드 등급 이상)"
                     >
-                        <div className="relative w-7 h-7">
+                        <div className="relative w-8 h-8">
                             <Image
-                                src="/images/well-icon.png"
-                                alt="Well"
+                                src="/images/vip-badge-v2.png"
+                                alt="VIP"
                                 fill
-                                className="object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                                className="object-contain group-hover:scale-110 transition-transform duration-300"
                             />
                         </div>
-                        <span className="text-[10px] text-gray-500 group-hover:text-gray-900 mt-0.5">고인물</span>
+                        <span className="text-[10px] font-bold text-amber-600 group-hover:text-amber-700 mt-0.5">VIP룸</span>
                     </Link>
 
                     {/* YouTube Link */}
@@ -128,8 +128,19 @@ function HeaderContent() {
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 hover:bg-transparent">
-                                                <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 border border-red-100 shadow-sm transition-transform active:scale-95">
-                                                    <User className="h-5 w-5" />
+                                                <div className="relative h-10 w-10 rounded-full overflow-hidden bg-red-50 flex items-center justify-center text-red-600 border-2 border-red-100 shadow-sm transition-transform active:scale-95">
+                                                    {userProfile?.profileImageUrl ? (
+                                                        <Image
+                                                            src={userProfile.profileImageUrl}
+                                                            alt="프로필"
+                                                            width={40}
+                                                            height={40}
+                                                            className="object-cover w-full h-full rounded-full"
+                                                            unoptimized
+                                                        />
+                                                    ) : (
+                                                        <User className="h-5 w-5" />
+                                                    )}
                                                 </div>
                                                 {userProfile?.role === 'admin' && (
                                                     <div className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 border-2 border-white">
@@ -169,6 +180,12 @@ function HeaderContent() {
                                                     <DropdownMenuSeparator />
                                                 </DropdownMenuGroup>
                                             )}
+                                            <Link href="/profile">
+                                                <DropdownMenuItem className="cursor-pointer">
+                                                    <User className="mr-2 h-4 w-4" />
+                                                    <span>개인정보 설정</span>
+                                                </DropdownMenuItem>
+                                            </Link>
                                             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-gray-700 focus:text-red-600">
                                                 <LogOut className="mr-2 h-4 w-4" />
                                                 <span>로그아웃</span>
@@ -276,7 +293,7 @@ function HeaderContent() {
                                 { href: "/reviews", icon: Star, label: region === 'Pattaya' ? '파타야 후기' : region === 'Haiphong' ? '하이퐁 후기' : '탐방 후기', color: "text-yellow-600", bg: "bg-yellow-50" },
                                 { href: "/quotes", icon: FileText, label: "여행 견적", color: "text-purple-600", bg: "bg-purple-50" },
                                 { href: "/guide", icon: HelpCircle, label: "이용 가이드", color: "text-cyan-600", bg: "bg-cyan-50" },
-                                { href: "/premium", icon: Sparkles, label: "고인물 우물터", color: "text-amber-600", bg: "bg-amber-50" },
+                                { href: "/premium", icon: Sparkles, label: "VIP룸", color: "text-amber-600", bg: "bg-amber-50" },
                             ].map((item) => (
                                 <Link
                                     key={item.href}

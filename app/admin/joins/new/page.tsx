@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -10,12 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, Calendar, MapPin, DollarSign, Users, ArrowLeft, Globe } from "lucide-react";
+import { Loader2, Calendar, MapPin, DollarSign, Users, ArrowLeft, Globe, AlertCircle } from "lucide-react";
 import { getCourses } from "@/lib/db/courses";
 import { createJoin } from "@/lib/db/joins";
 import { Course } from "@/lib/courses-data";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { updateCustomRequestStatus } from "@/lib/db/custom-requests";
+import { sendNotification } from "@/lib/db/notifications";
 
 const formSchema = z.object({
     country: z.string().min(1, "국가를 선택해주세요."),
@@ -38,10 +40,23 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function NewJoinPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [loading, setLoading] = useState(false);
     const [courses, setCourses] = useState<Course[]>([]);
     const [allCourses, setAllCourses] = useState<Course[]>([]);
     const [regions, setRegions] = useState<Array<{ country: string; region: string; label: string }>>([]);
+
+    // 커스텀 요청에서 넘어온 데이터
+    const fromRequest = {
+        courseName: searchParams.get('courseName') || '',
+        date: searchParams.get('date') || '',
+        time: searchParams.get('time') || '',
+        requestId: searchParams.get('requestId') || '',
+        requesterName: searchParams.get('requesterName') || '',
+        requesterEmail: searchParams.get('requesterEmail') || ''
+    };
+
+    const isFromRequest = !!fromRequest.requestId;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -66,12 +81,14 @@ export default function NewJoinPage() {
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            country: 'Thailand',
-            region: 'Pattaya',
+            country: 'Vietnam',
+            region: 'Haiphong',
             maxMembers: 4,
-            currentMembers: 1,
-            hostName: "관리자",
+            currentMembers: 0, // 초기값 0으로 변경
+            hostName: fromRequest.requesterName || "관리자",
             hostLevel: "마스터",
+            date: fromRequest.date || '',
+            time: fromRequest.time || '',
         }
     });
 
@@ -85,8 +102,20 @@ export default function NewJoinPage() {
                 (course) => course.country === watchCountry && course.region === watchRegion
             );
             setCourses(filtered);
+
+            // 커스텀 요청의 골프장 이름으로 courseId 자동 선택
+            if (isFromRequest && fromRequest.courseName && filtered.length > 0) {
+                const matchedCourse = filtered.find(c =>
+                    c.name.includes(fromRequest.courseName) ||
+                    fromRequest.courseName.includes(c.name)
+                );
+                if (matchedCourse) {
+                    setValue('courseId', matchedCourse.id);
+                }
+            }
         }
-    }, [watchCountry, watchRegion, allCourses]);
+    }, [watchCountry, watchRegion, allCourses, isFromRequest, fromRequest.courseName, setValue]);
+
 
     const onSubmit = async (data: FormValues) => {
         setLoading(true);
@@ -94,7 +123,7 @@ export default function NewJoinPage() {
             const selectedCourse = courses.find(c => c.id === data.courseId);
             if (!selectedCourse) throw new Error("Invalid course selected");
 
-            await createJoin({
+            const joinId = await createJoin({
                 ...data,
                 courseName: selectedCourse.name,
                 country: data.country,
@@ -103,6 +132,23 @@ export default function NewJoinPage() {
                 hostId: "admin",
                 description: data.description || "",
             });
+
+            // 커스텀 요청에서 온 경우, 요청 상태 업데이트 및 알림 발송
+            if (isFromRequest && fromRequest.requestId) {
+                try {
+                    // 요청 상태를 '완료됨'으로 업데이트
+                    await updateCustomRequestStatus(
+                        fromRequest.requestId,
+                        'completed',
+                        `조인이 등록되었습니다. (${data.date} ${data.time})`
+                    );
+
+                    // 요청자에게 알림 보내기 (userId 필요 - DB에서 가져와야 함)
+                    // 여기서는 requestId로 알림만 보냅니다
+                } catch (updateError) {
+                    console.error("Error updating custom request:", updateError);
+                }
+            }
 
             alert("새로운 조인이 등록되었습니다.");
             router.push("/admin/joins");
@@ -129,7 +175,29 @@ export default function NewJoinPage() {
                 </div>
             </div>
 
+            {/* 커스텀 요청에서 온 경우 안내 배너 */}
+            {isFromRequest && (
+                <Card className="bg-green-50 border-green-200">
+                    <CardContent className="flex items-start gap-3 p-4">
+                        <AlertCircle className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
+                        <div>
+                            <p className="font-medium text-green-800">커스텀 라운딩 요청 승인</p>
+                            <p className="text-sm text-green-600 mt-1">
+                                <strong>{fromRequest.requesterName}</strong>님의 요청입니다.<br />
+                                희망 골프장: {fromRequest.courseName || '미지정'} /
+                                날짜: {fromRequest.date || '미지정'} /
+                                시간: {fromRequest.time || '미지정'}
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)}>
+                {/* Hidden Inputs for Host Info */}
+                <input type="hidden" {...register('hostName')} />
+                <input type="hidden" {...register('hostLevel')} />
+
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
@@ -261,22 +329,11 @@ export default function NewJoinPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="currentMembers">현재 인원 (호스트 포함)</Label>
-                                <Input id="currentMembers" type="number" min="1" {...register("currentMembers")} />
+                                <Input id="currentMembers" type="number" min="0" {...register("currentMembers")} />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="hostName">호스트 이름</Label>
-                                <Input id="hostName" {...register("hostName")} />
-                                {errors.hostName && <p className="text-xs text-red-500">{errors.hostName.message}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="hostLevel">호스트 레벨</Label>
-                                <Input id="hostLevel" {...register("hostLevel")} />
-                                {errors.hostLevel && <p className="text-xs text-red-500">{errors.hostLevel.message}</p>}
-                            </div>
-                        </div>
+                        {/* Host Name and Level inputs removed as requested */}
 
                         <div className="space-y-2">
                             <Label htmlFor="description">추가 설명</Label>

@@ -82,7 +82,6 @@ export async function getRecentParticipants(limitCount: number = 5): Promise<Joi
 export async function getJoinParticipants(joinId: string): Promise<JoinParticipant[]> {
     const q = query(
         collection(db, PARTICIPANTS_COLLECTION),
-        where("joinId", "==", joinId),
         where("joinId", "==", joinId)
         // orderBy("appliedAt", "desc") // Requires index, temporarily disabled
     );
@@ -90,7 +89,7 @@ export async function getJoinParticipants(joinId: string): Promise<JoinParticipa
     const querySnapshot = await getDocs(q);
     const participants: JoinParticipant[] = [];
     querySnapshot.forEach((doc) => {
-        participants.push(doc.data() as JoinParticipant);
+        participants.push({ id: doc.id, ...doc.data() } as any as JoinParticipant);
     });
 
     // Sort in memory (client-side) to avoid composite index requirement

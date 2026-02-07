@@ -3,14 +3,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore";
-import { Plus, Trash2, Save } from "lucide-react";
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "firebase/firestore";
+import { Plus, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 
 interface Region {
     id: string;
     country: string;
     region: string;
     label: string;
+    isActive: boolean;
 }
 
 export default function RegionsPage() {
@@ -31,7 +32,14 @@ export default function RegionsPage() {
             const querySnapshot = await getDocs(collection(db, "regions"));
             const fetchedRegions: Region[] = [];
             querySnapshot.forEach((doc) => {
-                fetchedRegions.push({ id: doc.id, ...doc.data() } as Region);
+                const data = doc.data();
+                fetchedRegions.push({
+                    id: doc.id,
+                    country: data.country,
+                    region: data.region,
+                    label: data.label,
+                    isActive: data.isActive !== false, // 기본값 true
+                } as Region);
             });
             setRegions(fetchedRegions);
         } catch (error) {
@@ -49,7 +57,10 @@ export default function RegionsPage() {
 
         try {
             const id = `${newRegion.country}-${newRegion.region}`.toLowerCase();
-            await setDoc(doc(db, "regions", id), newRegion);
+            await setDoc(doc(db, "regions", id), {
+                ...newRegion,
+                isActive: true, // 새 지역은 기본적으로 활성화
+            });
             await fetchRegions();
             setNewRegion({ country: "", region: "", label: "" });
             alert("지역이 추가되었습니다.");
@@ -72,13 +83,27 @@ export default function RegionsPage() {
         }
     };
 
+    const handleToggleActive = async (region: Region) => {
+        try {
+            await updateDoc(doc(db, "regions", region.id), {
+                isActive: !region.isActive,
+            });
+            setRegions(regions.map(r =>
+                r.id === region.id ? { ...r, isActive: !r.isActive } : r
+            ));
+        } catch (error) {
+            console.error("Failed to toggle region:", error);
+            alert("상태 변경에 실패했습니다.");
+        }
+    };
+
     const handleInitialize = async () => {
         if (!confirm("초기 지역 데이터를 생성하시겠습니까?")) return;
 
         try {
             const initialRegions = [
-                { country: "Thailand", region: "Pattaya", label: "태국 파타야" },
-                { country: "Vietnam", region: "Haiphong", label: "베트남 하이퐁" },
+                { country: "Thailand", region: "Pattaya", label: "태국 파타야", isActive: true },
+                { country: "Vietnam", region: "Haiphong", label: "베트남 하이퐁", isActive: true },
             ];
 
             for (const region of initialRegions) {
@@ -166,12 +191,35 @@ export default function RegionsPage() {
                         {regions.map((region) => (
                             <div
                                 key={region.id}
-                                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                                className={`flex items-center justify-between p-4 rounded-lg transition-colors ${region.isActive ? 'bg-gray-50' : 'bg-gray-100 opacity-60'
+                                    }`}
                             >
-                                <div>
-                                    <div className="font-semibold">{region.label}</div>
-                                    <div className="text-sm text-gray-600">
-                                        {region.country} · {region.region}
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={() => handleToggleActive(region)}
+                                        className={`transition-colors ${region.isActive ? 'text-green-600 hover:text-green-700' : 'text-gray-400 hover:text-gray-500'
+                                            }`}
+                                        title={region.isActive ? '활성 상태 (클릭하여 비활성화)' : '비활성 상태 (클릭하여 활성화)'}
+                                    >
+                                        {region.isActive ? (
+                                            <ToggleRight className="h-8 w-8" />
+                                        ) : (
+                                            <ToggleLeft className="h-8 w-8" />
+                                        )}
+                                    </button>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-semibold">{region.label}</span>
+                                            <span className={`text-xs px-2 py-0.5 rounded-full ${region.isActive
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-gray-200 text-gray-600'
+                                                }`}>
+                                                {region.isActive ? '활성' : '비활성'}
+                                            </span>
+                                        </div>
+                                        <div className="text-sm text-gray-600">
+                                            {region.country} · {region.region}
+                                        </div>
                                     </div>
                                 </div>
                                 <Button
@@ -190,3 +238,4 @@ export default function RegionsPage() {
         </div>
     );
 }
+

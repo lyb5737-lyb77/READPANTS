@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { MessageSquare, CheckCircle, Clock } from "lucide-react";
+import { MessageSquare, CheckCircle, Clock, CheckSquare } from "lucide-react";
+import Link from "next/link";
 
 export default function AdminRequestsPage() {
     const [requests, setRequests] = useState<CustomRequest[]>([]);
@@ -100,10 +101,20 @@ export default function AdminRequestsPage() {
                                         </span>
                                     </div>
                                     {request.status === 'pending' && (
-                                        <Button size="sm" onClick={() => setSelectedRequest(request)}>
-                                            <MessageSquare className="w-4 h-4 mr-2" />
-                                            답변하기
-                                        </Button>
+                                        <div className="flex gap-2">
+                                            <Button size="sm" onClick={() => setSelectedRequest(request)}>
+                                                <MessageSquare className="w-4 h-4 mr-2" />
+                                                답변하기
+                                            </Button>
+                                            <Link
+                                                href={`/admin/joins/new?courseName=${encodeURIComponent(request.courseName)}&date=${encodeURIComponent(request.date)}&time=${encodeURIComponent(request.time)}&requestId=${request.id}&requesterName=${encodeURIComponent(request.userName)}&requesterEmail=${encodeURIComponent(request.userEmail)}`}
+                                            >
+                                                <Button size="sm" variant="outline" className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100">
+                                                    <CheckSquare className="w-4 h-4 mr-2" />
+                                                    조인승인
+                                                </Button>
+                                            </Link>
+                                        </div>
                                     )}
                                 </div>
                                 <CardTitle className="text-lg mt-2 flex items-center gap-2">

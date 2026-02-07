@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useRegionStore } from "@/lib/store/region-store";
-import { MapPin, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -12,21 +12,71 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { db } from "@/lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 import Image from "next/image";
 
-const REGIONS = [
-    { country: "Thailand", region: "Pattaya", label: "태국 파타야", flagUrl: "https://flagcdn.com/w40/th.png" },
-    { country: "Vietnam", region: "Haiphong", label: "베트남 하이퐁", flagUrl: "https://flagcdn.com/w40/vn.png" },
+interface RegionData {
+    id: string;
+    country: string;
+    region: string;
+    label: string;
+    isActive: boolean;
+    flagUrl: string;
+}
+
+// 국기 URL 매핑
+const FLAG_URLS: Record<string, string> = {
+    "Thailand": "https://flagcdn.com/w40/th.png",
+    "Vietnam": "https://flagcdn.com/w40/vn.png",
+};
+
+// 기본 지역 (Firebase 로드 실패 시 fallback)
+const DEFAULT_REGIONS: RegionData[] = [
+    { id: "thailand-pattaya", country: "Thailand", region: "Pattaya", label: "태국 파타야", flagUrl: "https://flagcdn.com/w40/th.png", isActive: true },
+    { id: "vietnam-haiphong", country: "Vietnam", region: "Haiphong", label: "베트남 하이퐁", flagUrl: "https://flagcdn.com/w40/vn.png", isActive: true },
 ];
 
 export function RegionSelector() {
     const { selectedRegion, setSelectedRegion } = useRegionStore();
     const [open, setOpen] = useState(false);
+    const [regions, setRegions] = useState<RegionData[]>(DEFAULT_REGIONS);
+    const [loading, setLoading] = useState(true);
 
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+
+    // Firebase에서 지역 목록 가져오기
+    useEffect(() => {
+        const fetchRegions = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "regions"));
+                if (!querySnapshot.empty) {
+                    const fetchedRegions: RegionData[] = [];
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        fetchedRegions.push({
+                            id: doc.id,
+                            country: data.country,
+                            region: data.region,
+                            label: data.label,
+                            isActive: data.isActive !== false,
+                            flagUrl: FLAG_URLS[data.country] || "https://flagcdn.com/w40/un.png",
+                        });
+                    });
+                    setRegions(fetchedRegions);
+                }
+            } catch (error) {
+                console.error("Failed to fetch regions:", error);
+                // 실패 시 기본 지역 사용
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchRegions();
+    }, []);
 
     // Sync store with URL params
     useEffect(() => {
@@ -36,16 +86,19 @@ export function RegionSelector() {
         if (country && region) {
             setSelectedRegion({ country, region });
         } else {
-            // Default to Thailand Pattaya if no params (e.g. root visit)
-            setSelectedRegion({ country: "Thailand", region: "Pattaya" });
+            // Default to Vietnam Haiphong if no params (e.g. root visit)
+            setSelectedRegion({ country: "Vietnam", region: "Haiphong" });
         }
     }, [searchParams, setSelectedRegion]);
 
-    const currentRegion = REGIONS.find(
+    const currentRegion = regions.find(
         (r) => r.country === selectedRegion.country && r.region === selectedRegion.region
-    ) || REGIONS[0];
+    ) || regions.find(r => r.isActive) || regions[0];
 
-    const handleSelectRegion = (country: string, region: string) => {
+    const handleSelectRegion = (country: string, region: string, isActive: boolean) => {
+        // 비활성 지역은 선택 불가
+        if (!isActive) return;
+
         setSelectedRegion({ country, region });
         setOpen(false);
 
@@ -67,13 +120,13 @@ export function RegionSelector() {
                 >
                     <div className="relative w-6 h-4 overflow-hidden rounded-sm shadow-sm">
                         <Image
-                            src={currentRegion.flagUrl}
-                            alt={currentRegion.country}
+                            src={currentRegion?.flagUrl || "https://flagcdn.com/w40/un.png"}
+                            alt={currentRegion?.country || "Region"}
                             fill
                             className="object-cover"
                         />
                     </div>
-                    <span className="text-sm font-medium">{currentRegion.label}</span>
+                    <span className="text-sm font-medium">{currentRegion?.label || "지역 선택"}</span>
                     <ChevronDown className="h-3.5 w-3.5 opacity-50" />
                 </Button>
             </DialogTrigger>
@@ -82,38 +135,56 @@ export function RegionSelector() {
                     <DialogTitle>지역 선택</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-3 py-4">
-                    {REGIONS.map((region) => (
-                        <Button
-                            key={`${region.country}-${region.region}`}
-                            variant={
-                                selectedRegion.country === region.country &&
-                                    selectedRegion.region === region.region
-                                    ? "default"
-                                    : "outline"
-                            }
-                            className="w-full justify-start text-left h-auto py-3"
-                            onClick={() => handleSelectRegion(region.country, region.region)}
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="relative w-8 h-5 overflow-hidden rounded-sm shadow-sm shrink-0">
-                                    <Image
-                                        src={region.flagUrl}
-                                        alt={region.country}
-                                        fill
-                                        className="object-cover"
-                                    />
-                                </div>
-                                <div>
-                                    <div className="font-semibold">{region.label}</div>
-                                    <div className="text-xs opacity-70">
-                                        {region.country} · {region.region}
+                    {loading ? (
+                        <div className="text-center py-4 text-gray-500">로딩 중...</div>
+                    ) : (
+                        regions.map((region) => (
+                            <Button
+                                key={`${region.country}-${region.region}`}
+                                variant={
+                                    selectedRegion.country === region.country &&
+                                        selectedRegion.region === region.region
+                                        ? "default"
+                                        : "outline"
+                                }
+                                className={`w-full justify-start text-left h-auto py-3 ${!region.isActive
+                                        ? 'opacity-50 cursor-not-allowed bg-gray-100 hover:bg-gray-100'
+                                        : ''
+                                    }`}
+                                onClick={() => handleSelectRegion(region.country, region.region, region.isActive)}
+                                disabled={!region.isActive}
+                            >
+                                <div className="flex items-center gap-3 w-full">
+                                    <div className="relative w-8 h-5 overflow-hidden rounded-sm shadow-sm shrink-0">
+                                        <Image
+                                            src={region.flagUrl}
+                                            alt={region.country}
+                                            fill
+                                            className={`object-cover ${!region.isActive ? 'grayscale' : ''}`}
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`font-semibold ${!region.isActive ? 'text-gray-400' : ''}`}>
+                                                {region.label}
+                                            </span>
+                                            {!region.isActive && (
+                                                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-500">
+                                                    준비중
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className={`text-xs ${!region.isActive ? 'text-gray-400' : 'opacity-70'}`}>
+                                            {region.country} · {region.region}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </Button>
-                    ))}
+                            </Button>
+                        ))
+                    )}
                 </div>
             </DialogContent>
         </Dialog>
     );
 }
+

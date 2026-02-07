@@ -6,33 +6,65 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Edit, Trash2, Calendar, MapPin, Users, Plus, Loader2 } from "lucide-react";
 import { getJoins, deleteJoin } from "@/lib/db/joins";
+import { getRegions, Region } from "@/lib/db/regions";
 import { Join } from "@/lib/joins-data";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 export default function AdminJoinsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [joins, setJoins] = useState<Join[]>([]);
+    const [regions, setRegions] = useState<Region[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // Filter states - Default to Vietnam/Haiphong
+    const [selectedCountry, setSelectedCountry] = useState("Vietnam");
+    const [selectedRegion, setSelectedRegion] = useState("Haiphong");
+
     useEffect(() => {
-        const fetchJoins = async () => {
+        const fetchData = async () => {
             try {
-                const data = await getJoins();
-                setJoins(data);
+                const [joinsData, regionsData] = await Promise.all([
+                    getJoins(),
+                    getRegions()
+                ]);
+                setJoins(joinsData);
+                setRegions(regionsData);
             } catch (error) {
-                console.error("Error fetching joins:", error);
+                console.error("Error fetching data:", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchJoins();
+        fetchData();
     }, []);
 
-    const filteredJoins = joins.filter(join =>
-        join.courseName.includes(searchTerm) || join.hostName.includes(searchTerm)
-    );
+    // Extract unique countries from regions
+    const countries = Array.from(new Set(regions.map(r => r.country)));
+
+    // Filter regions based on selected country
+    const filteredRegions = regions.filter(r => r.country === selectedCountry);
+
+    // Initial setting if regions loaded and strict default is needed, 
+    // but useState default handles basic requirement. 
+    // We might want to handle cases where "Vietnam" doesn't exist in data, but unlikely for this specific project.
+
+    const filteredJoins = joins.filter(join => {
+        const matchesSearch = join.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            join.hostName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCountry = selectedCountry === "all" || join.country === selectedCountry;
+        const matchesRegion = selectedRegion === "all" || join.region === selectedRegion;
+
+        return matchesSearch && matchesCountry && matchesRegion;
+    });
 
     const handleDelete = async (id: string) => {
-        if (confirm("정말로 이 조인을 삭제하시겠습니까?")) {
+        if (confirm("정말로 이 조인의 삭제하시겠습니까?")) {
             try {
                 await deleteJoin(id);
                 setJoins(joins.filter(j => j.id !== id));
@@ -45,7 +77,7 @@ export default function AdminJoinsPage() {
     };
 
     if (loading) {
-        return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin" /></div>;
+        return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-red-600" /></div>;
     }
 
     return (
@@ -65,14 +97,48 @@ export default function AdminJoinsPage() {
                 </Link>
             </div>
 
-            <div className="flex items-center gap-2 bg-white p-4 rounded-lg border shadow-sm">
-                <Search className="w-5 h-5 text-gray-400" />
-                <Input
-                    placeholder="골프장 또는 호스트 검색..."
-                    className="max-w-sm border-none shadow-none focus-visible:ring-0"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
+            <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-lg border shadow-sm">
+                {/* Filters */}
+                <div className="flex gap-2">
+                    <Select value={selectedCountry} onValueChange={(val) => {
+                        setSelectedCountry(val);
+                        setSelectedRegion("all"); // Reset region when country changes
+                    }}>
+                        <SelectTrigger className="w-[140px]">
+                            <SelectValue placeholder="국가 선택" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">모든 국가</SelectItem>
+                            {countries.map(country => (
+                                <SelectItem key={country} value={country}>{country}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                        <SelectTrigger className="w-[140px]">
+                            <SelectValue placeholder="지역 선택" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">모든 지역</SelectItem>
+                            {filteredRegions.map(region => (
+                                <SelectItem key={region.id} value={region.region}>
+                                    {region.label} ({region.region})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="flex-1 flex items-center gap-2 border rounded-md px-3">
+                    <Search className="w-5 h-5 text-gray-400" />
+                    <Input
+                        placeholder="골프장 또는 호스트 검색..."
+                        className="border-none shadow-none focus-visible:ring-0"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
             </div>
 
             <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
@@ -91,120 +157,129 @@ export default function AdminJoinsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredJoins.map((join) => (
-                                <tr key={join.id} className="border-b hover:bg-gray-50">
-                                    <td className="px-6 py-4">
-                                        <div className="font-medium text-gray-900">{join.courseName}</div>
-                                        <div className="text-gray-500 text-xs flex items-center gap-1 mt-1">
-                                            <Calendar className="w-3 h-3" /> {join.date} {join.time}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-1 text-gray-700">
-                                            <MapPin className="w-3 h-3 text-red-500" />
-                                            <span className="text-xs">{join.country} / {join.region}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="font-medium">{join.hostName}</div>
-                                        <div className="text-xs text-gray-500">{join.hostLevel}</div>
-                                    </td>
-                                    <td className="px-6 py-4 font-medium">
-                                        {join.greenFee.toLocaleString()} 바트
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-1">
-                                            <Users className="w-4 h-4 text-gray-400" />
-                                            <span>{join.currentMembers} / {join.maxMembers}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${join.status === 'open' ? 'bg-green-50 text-green-700 border-green-200' :
-                                            join.status === 'full' ? 'bg-red-50 text-red-700 border-red-200' :
-                                                'bg-gray-50 text-gray-700 border-gray-200'
-                                            }`}>
-                                            {join.status === 'open' ? '모집중' :
-                                                join.status === 'full' ? '마감' : '종료'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <Link href={`/admin/joins/${join.id}`}>
-                                                <Button variant="outline" size="sm">
-                                                    <Edit className="w-4 h-4" />
-                                                </Button>
-                                            </Link>
-                                            <Button variant="outline" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => handleDelete(join.id)}>
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
+                            {filteredJoins.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                                        조건에 맞는 조인이 없습니다.
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                filteredJoins.map((join) => (
+                                    <tr key={join.id} className="border-b hover:bg-gray-50">
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium text-gray-900">{join.courseName}</div>
+                                            <div className="text-gray-500 text-xs flex items-center gap-1 mt-1">
+                                                <Calendar className="w-3 h-3" /> {join.date} {join.time}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-1 text-gray-700">
+                                                <MapPin className="w-3 h-3 text-red-500" />
+                                                <span className="text-xs">{join.country} / {join.region}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium">{join.hostName}</div>
+                                            <div className="text-xs text-gray-500">{join.hostLevel}</div>
+                                        </td>
+                                        <td className="px-6 py-4 font-medium">
+                                            {join.greenFee.toLocaleString()} ({join.country === 'Thailand' ? 'THB' : join.country === 'Vietnam' ? 'VND' : join.country === 'Japan' ? 'JPY' : 'KRW'})
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-1">
+                                                <Users className="w-4 h-4 text-gray-400" />
+                                                <span>{join.currentMembers || 0} / {join.maxMembers}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${join.status === 'open' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                join.status === 'full' ? 'bg-red-50 text-red-700 border-red-200' :
+                                                    'bg-gray-50 text-gray-700 border-gray-200'
+                                                }`}>
+                                                {join.status === 'open' ? '모집중' :
+                                                    join.status === 'full' ? '마감' : '종료'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <Link href={`/admin/joins/${join.id}`}>
+                                                    <Button variant="outline" size="sm">
+                                                        <Edit className="w-4 h-4" />
+                                                    </Button>
+                                                </Link>
+                                                <Button variant="outline" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => handleDelete(join.id)}>
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
 
                 {/* Mobile Card View */}
                 <div className="md:hidden divide-y">
-                    {filteredJoins.map((join) => (
-                        <div key={join.id} className="p-4 space-y-3">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h3 className="font-bold text-gray-900">{join.courseName}</h3>
-                                    <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
-                                        <Calendar className="w-3 h-3" /> {join.date} {join.time}
-                                    </div>
-                                    <div className="text-xs text-gray-600 flex items-center gap-1 mt-1">
-                                        <MapPin className="w-3 h-3 text-red-500" />
-                                        {join.country} / {join.region}
-                                    </div>
-                                </div>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium border ${join.status === 'open' ? 'bg-green-50 text-green-700 border-green-200' :
-                                    join.status === 'full' ? 'bg-red-50 text-red-700 border-red-200' :
-                                        'bg-gray-50 text-gray-700 border-gray-200'
-                                    }`}>
-                                    {join.status === 'open' ? '모집중' :
-                                        join.status === 'full' ? '마감' : '종료'}
-                                </span>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div className="bg-gray-50 p-2 rounded">
-                                    <span className="text-gray-500 text-xs block">호스트</span>
-                                    <span className="font-medium">{join.hostName}</span>
-                                </div>
-                                <div className="bg-gray-50 p-2 rounded">
-                                    <span className="text-gray-500 text-xs block">그린피</span>
-                                    <span className="font-medium">{join.greenFee.toLocaleString()} 바트</span>
-                                </div>
-                                <div className="bg-gray-50 p-2 rounded col-span-2 flex justify-between items-center">
-                                    <span className="text-gray-500 text-xs">참여 현황</span>
-                                    <div className="flex items-center gap-1 font-medium">
-                                        <Users className="w-4 h-4 text-gray-400" />
-                                        <span>{join.currentMembers} / {join.maxMembers}명</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end gap-2 pt-2">
-                                <Link href={`/admin/joins/${join.id}`} className="flex-1">
-                                    <Button variant="outline" size="sm" className="w-full">
-                                        <Edit className="w-4 h-4 mr-2" /> 수정
-                                    </Button>
-                                </Link>
-                                <Button variant="outline" size="sm" className="flex-1 text-red-600 hover:bg-red-50" onClick={() => handleDelete(join.id)}>
-                                    <Trash2 className="w-4 h-4 mr-2" /> 삭제
-                                </Button>
-                            </div>
+                    {filteredJoins.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
+                            조건에 맞는 조인이 없습니다.
                         </div>
-                    ))}
+                    ) : (
+                        filteredJoins.map((join) => (
+                            <div key={join.id} className="p-4 space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="font-bold text-gray-900">{join.courseName}</h3>
+                                        <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                                            <Calendar className="w-3 h-3" /> {join.date} {join.time}
+                                        </div>
+                                        <div className="text-xs text-gray-600 flex items-center gap-1 mt-1">
+                                            <MapPin className="w-3 h-3 text-red-500" />
+                                            {join.country} / {join.region}
+                                        </div>
+                                    </div>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${join.status === 'open' ? 'bg-green-50 text-green-700 border-green-200' :
+                                        join.status === 'full' ? 'bg-red-50 text-red-700 border-red-200' :
+                                            'bg-gray-50 text-gray-700 border-gray-200'
+                                        }`}>
+                                        {join.status === 'open' ? '모집중' :
+                                            join.status === 'full' ? '마감' : '종료'}
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                    <div className="bg-gray-50 p-2 rounded">
+                                        <span className="text-gray-500 text-xs block">호스트</span>
+                                        <span className="font-medium">{join.hostName}</span>
+                                    </div>
+                                    <div className="bg-gray-50 p-2 rounded">
+                                        <span className="text-gray-500 text-xs block">그린피</span>
+                                        <span className="font-medium">{join.greenFee.toLocaleString()} ({join.country === 'Thailand' ? 'THB' : join.country === 'Vietnam' ? 'VND' : 'KRW'})</span>
+                                    </div>
+                                    <div className="bg-gray-50 p-2 rounded col-span-2 flex justify-between items-center">
+                                        <span className="text-gray-500 text-xs">참여 현황</span>
+                                        <div className="flex items-center gap-1 font-medium">
+                                            <Users className="w-4 h-4 text-gray-400" />
+                                            <span>{join.currentMembers || 0} / {join.maxMembers}명</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end gap-2 pt-2">
+                                    <Link href={`/admin/joins/${join.id}`} className="flex-1">
+                                        <Button variant="outline" size="sm" className="w-full">
+                                            <Edit className="w-4 h-4 mr-2" /> 수정
+                                        </Button>
+                                    </Link>
+                                    <Button variant="outline" size="sm" className="flex-1 text-red-600 hover:bg-red-50" onClick={() => handleDelete(join.id)}>
+                                        <Trash2 className="w-4 h-4 mr-2" /> 삭제
+                                    </Button>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
-                {filteredJoins.length === 0 && (
-                    <div className="p-8 text-center text-gray-500">
-                        검색 결과가 없습니다.
-                    </div>
-                )}
             </div>
         </div>
     );

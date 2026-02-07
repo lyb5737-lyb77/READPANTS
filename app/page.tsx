@@ -2,9 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, Heart } from "lucide-react";
-import RecentJoins from "@/components/home/recent-joins";
+import { JoinCalendar } from "@/components/home/join-calendar";
 import { AdminInquiryDialog } from "@/components/home/admin-inquiry-dialog";
 import { BannerCarousel } from "@/components/home/banner-carousel";
+import RecentJoins from "@/components/home/recent-joins";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -17,56 +18,23 @@ export default async function Home({
 }) {
   // Await searchParams (Next.js 15+)
   const params = await searchParams;
-  const country = params.country || 'Thailand';
-  const region = params.region || 'Pattaya';
+  const country = params.country || 'Vietnam';
+  const region = params.region || 'Haiphong';
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative w-full pt-14 pb-12 lg:pt-24 lg:pb-16 overflow-hidden bg-gradient-to-b from-red-50 to-white">
-        <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-red-100 rounded-full blur-3xl opacity-50 animate-pulse" />
-        <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-96 h-96 bg-green-100 rounded-full blur-3xl opacity-50" />
+      {/* Join Calendar Section (Hero 통합) */}
+      <JoinCalendar />
 
-        <div className="container px-4 md:px-6 relative z-10">
-          <div className="flex flex-col items-center text-center space-y-6">
-            <div className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-3 py-1 text-sm font-medium text-red-600 mb-2">
-              <span className="flex h-2 w-2 rounded-full bg-red-600 mr-2 animate-pulse"></span>
-              지금 가장 핫한 동남아 골프 조인
-            </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 leading-tight">
-              혼자라도 괜찮아, <br className="hidden sm:inline" />
-              <span className="text-primary">빨간바지</span>와 함께라면!
-            </h1>
-            <p className="max-w-[700px] text-lg md:text-xl text-gray-600">
-              설레는 해외 라운딩, 낯선 곳에서의 특별한 만남. <br />
-              검증된 매너 골퍼들과 함께 안전하고 즐거운 여행을 떠나보세요.
-            </p>
 
-            {/* Stats / Trust Indicators */}
-            <div className="pt-8 pb-12 grid grid-cols-3 gap-4 md:gap-16 text-center border-b border-red-50/50 mb-8 max-w-4xl mx-auto w-full">
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-3xl md:text-4xl font-bold text-gray-900 heading-font">1,204+</span>
-                <span className="text-sm text-gray-500 font-medium">누적 매칭</span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-3xl md:text-4xl font-bold text-gray-900 heading-font">98%</span>
-                <span className="text-sm text-gray-500 font-medium">매너 만족도</span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-3xl md:text-4xl font-bold text-gray-900 heading-font">0건</span>
-                <span className="text-sm text-gray-500 font-medium">노쇼</span>
-              </div>
-            </div>
-
-            {/* Banner Section */}
-            <div className="w-full pb-0 mt-4">
-              <BannerCarousel />
-            </div>
-          </div>
+      {/* Banner Section */}
+      <section className="py-6 bg-white">
+        <div className="container px-4 md:px-6">
+          <BannerCarousel />
         </div>
       </section>
 
-      {/* Recent Joins Section */}
+      {/* 마감 임박 조인 섹션 */}
       <RecentJoins country={country} region={region} />
 
       {/* Feature Section */}
@@ -121,12 +89,7 @@ export default async function Home({
           <div className="relative rounded-[2.5rem] overflow-hidden min-h-[300px] flex items-center">
             {/* Background Image with Gradient Overlay */}
             <div className="absolute inset-0 z-0">
-              {/* Since image generation failed, we use a placeholder or existing image if available. 
-                   Ideally this would be the generated image. For now using a gradient placeholder 
-                   that matches the description "gradient background". 
-                   If the user provides an image later, we can swap it. */}
               <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800/80 to-transparent z-10" />
-              {/* Placeholder for the image - in real scenario, use <Image src="..." ... /> */}
               <Image
                 src="/images/custom-rounding.png"
                 alt="Background"
@@ -159,3 +122,4 @@ export default async function Home({
     </div>
   );
 }
+

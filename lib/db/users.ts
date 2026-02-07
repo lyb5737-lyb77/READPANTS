@@ -15,6 +15,7 @@ export interface UserProfile {
     email: string;
     nickname: string;
     phone: string; // 휴대폰번호 (필수)
+    profileImageUrl?: string; // 프로필 이미지 URL
     marketingConsents: {
         sms: boolean;
         email: boolean;

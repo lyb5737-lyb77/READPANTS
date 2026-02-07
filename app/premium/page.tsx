@@ -163,7 +163,7 @@ export default function PremiumBoardPage() {
                 </div>
                 <h1 className="text-3xl font-bold">골드 등급 이상 전용 공간</h1>
                 <p className="text-gray-600 max-w-md">
-                    '정보나눔 우물터'는 커뮤니티 활동을 열심히 해주신 골드(Lv.5) 등급 이상 회원님들만 이용하실 수 있는 프리미엄 공간입니다.
+                    'VIP 정보 나눔터'는 커뮤니티 활동을 열심히 해주신 골드(Lv.5) 등급 이상 회원님들만 이용하실 수 있는 프리미엄 공간입니다.
                 </p>
                 <div className="p-6 bg-gray-50 rounded-lg w-full max-w-sm">
                     <div className="text-sm font-medium text-gray-500 mb-2">나의 현재 등급</div>
@@ -184,7 +184,7 @@ export default function PremiumBoardPage() {
             <div className="flex justify-between items-end mb-6 border-b pb-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-2 text-gray-900">
-                        <span>⛲</span> 정보나눔 우물터
+                        <span>👑</span> VIP 골드회원 정보 나눔터
                     </h1>
                     <p className="text-gray-500 mt-1">골드 회원님들의 알짜배기 정보 공유 공간</p>
                 </div>
