@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getYoutubeChannels, deleteYoutubeChannel, YouTubeChannel } from "@/lib/db/youtube";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Edit } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminYoutubePage() {
     const [rankings, setRankings] = useState<YouTubeChannel[]>([]);
@@ -34,9 +35,10 @@ export default function AdminYoutubePage() {
         try {
             await deleteYoutubeChannel(id);
             loadData();
+            toast.success("삭제되었습니다.");
         } catch (e) {
             console.error(e);
-            alert("삭제 실패");
+            toast.error("삭제 실패");
         }
     };
 
@@ -51,11 +53,12 @@ export default function AdminYoutubePage() {
                                 setLoading(true);
                                 const { resetYoutubeData } = await import("@/lib/db/youtube");
                                 await resetYoutubeData();
+                                await resetYoutubeData();
                                 await loadData();
-                                alert("초기화되었습니다.");
+                                toast.success("초기화되었습니다.");
                             } catch (e) {
                                 console.error(e);
-                                alert("초기화 실패");
+                                toast.error("초기화 실패");
                             } finally {
                                 setLoading(false);
                             }

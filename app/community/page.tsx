@@ -10,6 +10,7 @@ import { getPosts, Post } from "@/lib/community";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { toast } from "sonner";
 
 export default function CommunityPage() {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -34,7 +35,7 @@ export default function CommunityPage() {
 
     const handleWriteClick = () => {
         if (!user) {
-            alert("로그인이 필요합니다.");
+            toast.error("로그인이 필요합니다.");
             router.push("/login");
             return;
         }

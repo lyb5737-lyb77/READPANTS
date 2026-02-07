@@ -18,6 +18,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { updateCustomRequestStatus } from "@/lib/db/custom-requests";
 import { sendNotification } from "@/lib/db/notifications";
+import { toast } from "sonner";
 
 const formSchema = z.object({
     country: z.string().min(1, "국가를 선택해주세요."),
@@ -150,12 +151,12 @@ export default function NewJoinPage() {
                 }
             }
 
-            alert("새로운 조인이 등록되었습니다.");
+            toast.success("새로운 조인이 등록되었습니다.");
             router.push("/admin/joins");
             router.refresh();
         } catch (error) {
             console.error("Error creating join:", error);
-            alert("조인 등록 중 오류가 발생했습니다.");
+            toast.error("조인 등록 중 오류가 발생했습니다.");
         } finally {
             setLoading(false);
         }

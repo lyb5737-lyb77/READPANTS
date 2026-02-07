@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { Calendar as CalendarIcon, Users, MapPin } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Course } from "@/lib/courses-data";
+import { toast } from "sonner";
 
 interface CustomRequestCardProps {
     courses?: Course[];
@@ -47,10 +48,10 @@ export function CustomRequestCard({ courses = [] }: CustomRequestCardProps) {
             });
             setIsOpen(false);
             setFormData({ courseName: "", date: "", time: "", people: "", memo: "" });
-            alert("요청이 성공적으로 접수되었습니다. 관리자가 확인 후 알림을 보내드립니다.");
+            toast.success("요청이 성공적으로 접수되었습니다. 관리자가 확인 후 알림을 보내드립니다.");
         } catch (error) {
             console.error("Failed to submit request:", error);
-            alert("요청 접수 중 오류가 발생했습니다.");
+            toast.error("요청 접수 중 오류가 발생했습니다.");
         } finally {
             setLoading(false);
         }

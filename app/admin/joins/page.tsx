@@ -15,6 +15,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
 export default function AdminJoinsPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -68,10 +70,10 @@ export default function AdminJoinsPage() {
             try {
                 await deleteJoin(id);
                 setJoins(joins.filter(j => j.id !== id));
-                alert("삭제되었습니다.");
+                toast.success("삭제되었습니다.");
             } catch (error) {
                 console.error("Error deleting join:", error);
-                alert("삭제 중 오류가 발생했습니다.");
+                toast.error("삭제 중 오류가 발생했습니다.");
             }
         }
     };

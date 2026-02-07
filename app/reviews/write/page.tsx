@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { createReview, REVIEW_CATEGORIES, ReviewCategory } from "@/lib/db/reviews";
 import { ArrowLeft, Loader2, Star, Upload, X, CheckCircle2, Utensils, Hotel, Sparkles, Map, Flag, CircleDot } from "lucide-react";
+import { toast } from "sonner";
 
 // Local icon mapping
 const CATEGORY_ICONS: Record<ReviewCategory, React.ReactNode> = {
@@ -45,7 +46,7 @@ function WriteReviewPageContent() {
             const totalFiles = images.length + newFiles.length;
 
             if (totalFiles > 5) {
-                alert("사진은 최대 5장까지 업로드 가능합니다.");
+                toast.warning("사진은 최대 5장까지 업로드 가능합니다.");
                 return;
             }
 
@@ -71,12 +72,12 @@ function WriteReviewPageContent() {
         e.preventDefault();
 
         if (!user) {
-            alert("로그인이 필요합니다.");
+            toast.error("로그인이 필요합니다.");
             return;
         }
 
         if (!businessName.trim() || !content.trim()) {
-            alert("상호명과 후기 내용은 필수 입력 사항입니다.");
+            toast.warning("상호명과 후기 내용은 필수 입력 사항입니다.");
             return;
         }
 
@@ -108,11 +109,11 @@ function WriteReviewPageContent() {
                 },
             }, images);
 
-            alert("후기가 성공적으로 등록되었습니다!");
+            toast.success("후기가 성공적으로 등록되었습니다!");
             router.push(`/reviews?country=${country}&region=${region}`);
         } catch (error) {
             console.error("Failed to submit review:", error);
-            alert("후기 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+            toast.error("후기 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
         } finally {
             setLoading(false);
         }

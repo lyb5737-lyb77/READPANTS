@@ -14,6 +14,7 @@ import { db, auth, storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import Image from "next/image";
+import { toast } from "sonner";
 import {
     Dialog,
     DialogContent,
@@ -45,7 +46,7 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (!loading && !user) {
-            alert("로그인이 필요합니다.");
+            toast.error("로그인이 필요합니다.");
             router.push("/login");
         }
     }, [user, loading, router]);
@@ -99,13 +100,13 @@ export default function ProfilePage() {
 
         // 파일 타입 검증
         if (!file.type.startsWith('image/')) {
-            alert("이미지 파일만 업로드 가능합니다.");
+            toast.warning("이미지 파일만 업로드 가능합니다.");
             return;
         }
 
         // 파일 크기 검증 (5MB 제한)
         if (file.size > 5 * 1024 * 1024) {
-            alert("파일 크기는 5MB 이하여야 합니다.");
+            toast.warning("파일 크기는 5MB 이하여야 합니다.");
             return;
         }
 
@@ -125,11 +126,11 @@ export default function ProfilePage() {
                 profileImageUrl: downloadURL
             });
 
-            alert("프로필 사진이 변경되었습니다.");
+            toast.success("프로필 사진이 변경되었습니다.");
             window.location.reload();
         } catch (error) {
             console.error("Image upload error:", error);
-            alert("이미지 업로드 중 오류가 발생했습니다.");
+            toast.error("이미지 업로드 중 오류가 발생했습니다.");
         } finally {
             setImageLoading(false);
         }
@@ -137,7 +138,7 @@ export default function ProfilePage() {
 
     const handlePhoneChange = async () => {
         if (!newPhone.trim()) {
-            alert("전화번호를 입력해주세요.");
+            toast.warning("전화번호를 입력해주세요.");
             return;
         }
 
@@ -147,14 +148,14 @@ export default function ProfilePage() {
             await updateDoc(userRef, {
                 phone: newPhone.trim()
             });
-            alert("전화번호가 변경되었습니다.");
+            toast.success("전화번호가 변경되었습니다.");
             setPhoneDialogOpen(false);
             setNewPhone("");
             // Refresh the page to update userProfile
             window.location.reload();
         } catch (error) {
             console.error("Phone change error:", error);
-            alert("전화번호 변경 중 오류가 발생했습니다.");
+            toast.error("전화번호 변경 중 오류가 발생했습니다.");
         } finally {
             setPhoneLoading(false);
         }
@@ -162,17 +163,17 @@ export default function ProfilePage() {
 
     const handlePasswordChange = async () => {
         if (!currentPassword || !newPassword || !confirmPassword) {
-            alert("모든 필드를 입력해주세요.");
+            toast.warning("모든 필드를 입력해주세요.");
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert("새 비밀번호가 일치하지 않습니다.");
+            toast.warning("새 비밀번호가 일치하지 않습니다.");
             return;
         }
 
         if (newPassword.length < 6) {
-            alert("비밀번호는 6자 이상이어야 합니다.");
+            toast.warning("비밀번호는 6자 이상이어야 합니다.");
             return;
         }
 
@@ -185,7 +186,7 @@ export default function ProfilePage() {
             // Update password
             await updatePassword(auth.currentUser!, newPassword);
 
-            alert("비밀번호가 변경되었습니다.");
+            toast.success("비밀번호가 변경되었습니다.");
             setPasswordDialogOpen(false);
             setCurrentPassword("");
             setNewPassword("");
@@ -193,11 +194,11 @@ export default function ProfilePage() {
         } catch (error: any) {
             console.error("Password change error:", error);
             if (error.code === "auth/wrong-password") {
-                alert("현재 비밀번호가 올바르지 않습니다.");
+                toast.error("현재 비밀번호가 올바르지 않습니다.");
             } else if (error.code === "auth/requires-recent-login") {
-                alert("보안을 위해 다시 로그인해주세요.");
+                toast.error("보안을 위해 다시 로그인해주세요.");
             } else {
-                alert("비밀번호 변경 중 오류가 발생했습니다.");
+                toast.error("비밀번호 변경 중 오류가 발생했습니다.");
             }
         } finally {
             setPasswordLoading(false);

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getBanner, updateBanner, Banner } from "@/lib/db/banners";
 import { ArrowLeft, Loader2, Upload } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export default function EditBannerPage() {
     const router = useRouter();
@@ -27,7 +28,7 @@ export default function EditBannerPage() {
             try {
                 const banner = await getBanner(id);
                 if (!banner) {
-                    alert("존재하지 않는 배너입니다.");
+                    toast.error("존재하지 않는 배너입니다.");
                     router.push("/admin/banners");
                     return;
                 }
@@ -37,7 +38,7 @@ export default function EditBannerPage() {
                 setCurrentImageUrl(banner.imageUrl);
             } catch (error) {
                 console.error("Failed to load banner:", error);
-                alert("배너 정보를 불러오는데 실패했습니다.");
+                toast.error("배너 정보를 불러오는데 실패했습니다.");
             } finally {
                 setLoading(false);
             }
@@ -57,7 +58,7 @@ export default function EditBannerPage() {
         e.preventDefault();
 
         if (!title.trim() || !linkUrl.trim()) {
-            alert("제목과 링크를 입력해주세요.");
+            toast.error("제목과 링크를 입력해주세요.");
             return;
         }
 
@@ -70,10 +71,11 @@ export default function EditBannerPage() {
                 isActive,
             }, imageFile || undefined);
 
+            toast.success("배너가 수정되었습니다.");
             router.push("/admin/banners");
         } catch (error) {
             console.error("Failed to update banner:", error);
-            alert("배너 수정 중 오류가 발생했습니다.");
+            toast.error("배너 수정 중 오류가 발생했습니다.");
         } finally {
             setSaving(false);
         }

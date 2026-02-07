@@ -16,6 +16,7 @@ import {
 } from "@/lib/ranking";
 import { Loader2 } from "lucide-react";
 import { LevelBadge } from "@/components/ui/level-badge";
+import { toast } from "sonner";
 
 export default function AdminCommunityPage() {
     const [settings, setSettings] = useState<RankingSettings>({
@@ -46,10 +47,10 @@ export default function AdminCommunityPage() {
         setSaving(true);
         try {
             await updateRankingSettings(settings);
-            alert("설정이 저장되었습니다.");
+            toast.success("설정이 저장되었습니다.");
         } catch (error) {
             console.error(error);
-            alert("저장 중 오류가 발생했습니다.");
+            toast.error("저장 중 오류가 발생했습니다.");
         } finally {
             setSaving(false);
         }

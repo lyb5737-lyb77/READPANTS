@@ -14,6 +14,7 @@ import { db, storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { formatDistanceToNow, format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -69,7 +70,7 @@ export default function PremiumBoardPage() {
     useEffect(() => {
         if (!loading) {
             if (!user) {
-                alert("로그인이 필요합니다.");
+                toast.error("로그인이 필요합니다.");
                 router.push("/login");
                 return;
             }
@@ -129,12 +130,12 @@ export default function PremiumBoardPage() {
         if (!confirm("정말 삭제하시겠습니까?")) return;
         try {
             await deleteDoc(doc(db, "premium_posts", postId));
-            alert("삭제되었습니다.");
+            toast.success("삭제되었습니다.");
             setSelectedPost(null);
             fetchPosts();
         } catch (error) {
             console.error("Delete error:", error);
-            alert("삭제 중 오류가 발생했습니다.");
+            toast.error("삭제 중 오류가 발생했습니다.");
         }
     };
 
@@ -378,7 +379,7 @@ function VoteButtons({ post, currentUserId, onVote }: { post: PremiumPost, curre
 
         // Check if already voted
         if (post.likedBy?.includes(currentUserId) || post.dislikedBy?.includes(currentUserId)) {
-            alert("이미 평가하셨습니다.");
+            toast.warning("이미 평가하셨습니다.");
             return;
         }
 
@@ -402,7 +403,7 @@ function VoteButtons({ post, currentUserId, onVote }: { post: PremiumPost, curre
             onVote(updatedPost);
         } catch (error) {
             console.error("Vote error", error);
-            alert("오류가 발생했습니다.");
+            toast.error("오류가 발생했습니다.");
         } finally {
             setVoting(false);
         }
@@ -440,7 +441,6 @@ function WritePostDialog({ user, userProfile, onPostCreated, open, onOpenChange 
     const [uploading, setUploading] = useState(false);
     const [images, setImages] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
-    const { toast } = useToast(); // Assuming standard toast hook or alert
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -459,7 +459,7 @@ function WritePostDialog({ user, userProfile, onPostCreated, open, onOpenChange 
 
     const handleSubmit = async () => {
         if (!title.trim() || !content.trim()) {
-            alert("제목과 내용을 모두 입력해주세요.");
+            toast.warning("제목과 내용을 모두 입력해주세요.");
             return;
         }
         setUploading(true);
@@ -500,7 +500,7 @@ function WritePostDialog({ user, userProfile, onPostCreated, open, onOpenChange 
             onPostCreated();
         } catch (error) {
             console.error("Write error:", error);
-            alert("작성 중 오류가 발생했습니다.");
+            toast.error("작성 중 오류가 발생했습니다.");
         } finally {
             setUploading(false);
         }
@@ -591,5 +591,4 @@ function WritePostDialog({ user, userProfile, onPostCreated, open, onOpenChange 
     );
 }
 
-// Mock toast for now or remove if not used explicitly
-function useToast() { return { toast: (props: any) => console.log(props) } }
+

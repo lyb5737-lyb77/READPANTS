@@ -7,6 +7,7 @@ import { joins } from "@/lib/joins-data";
 import { createCourse } from "@/lib/db/courses";
 import { createJoin } from "@/lib/db/joins";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function MigrationPage() {
     const [status, setStatus] = useState<string>("");
@@ -32,16 +33,6 @@ export default function MigrationPage() {
             setStatus(`조인 데이터 업로드 중... (0/${joins.length})`);
             let joinCount = 0;
             for (const join of joins) {
-                // Remove ID to let Firestore generate it, or keep it if we want to preserve mock IDs
-                // Here we preserve mock IDs for consistency with current links, but usually we'd let Firestore generate
-                // For this migration, let's treat mock IDs as real IDs if possible, but createJoin expects Omit<Join, "id">
-                // Let's modify createJoin to accept ID if provided or just use setDoc if we want to force ID.
-                // Actually, let's just upload them as new documents for simplicity, or we can use setDoc in the loop directly here.
-
-                // We will use the createJoin from lib/db/joins which uses addDoc (auto ID).
-                // This means URLs with old IDs might break, but that's acceptable for migration.
-                // Wait, if we want to keep the "join-1" etc, we should use setDoc.
-                // But let's stick to the service layer.
                 const { id, ...joinData } = join;
                 await createJoin(joinData);
                 joinCount++;
@@ -49,10 +40,11 @@ export default function MigrationPage() {
             }
 
             setStatus("마이그레이션 완료!");
-            alert("모든 데이터가 성공적으로 업로드되었습니다.");
+            toast.success("모든 데이터가 성공적으로 업로드되었습니다.");
         } catch (error) {
             console.error(error);
             setStatus(`오류 발생: ${error}`);
+            toast.error("데이터 마이그레이션 실패");
         } finally {
             setLoading(false);
         }

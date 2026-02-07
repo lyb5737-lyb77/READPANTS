@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminYoutubeNewPage() {
     const router = useRouter();
@@ -34,11 +35,11 @@ export default function AdminYoutubeNewPage() {
                 rank: type === 'ranking' ? Number(rank) : undefined,
                 description: desc,
             });
-            alert("등록되었습니다.");
+            toast.success("등록되었습니다.");
             router.push("/admin/youtube");
         } catch (error) {
             console.error(error);
-            alert("등록 실패");
+            toast.error("등록 실패");
         } finally {
             setLoading(false);
         }

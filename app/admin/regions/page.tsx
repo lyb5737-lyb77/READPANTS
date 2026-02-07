@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Plus, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { toast } from "sonner";
 
 interface Region {
     id: string;
@@ -51,7 +52,7 @@ export default function RegionsPage() {
 
     const handleAddRegion = async () => {
         if (!newRegion.country || !newRegion.region || !newRegion.label) {
-            alert("모든 필드를 입력해주세요.");
+            toast.warning("모든 필드를 입력해주세요.");
             return;
         }
 
@@ -63,10 +64,10 @@ export default function RegionsPage() {
             });
             await fetchRegions();
             setNewRegion({ country: "", region: "", label: "" });
-            alert("지역이 추가되었습니다.");
+            toast.success("지역이 추가되었습니다.");
         } catch (error) {
             console.error("Failed to add region:", error);
-            alert("지역 추가에 실패했습니다.");
+            toast.error("지역 추가에 실패했습니다.");
         }
     };
 
@@ -76,10 +77,10 @@ export default function RegionsPage() {
         try {
             await deleteDoc(doc(db, "regions", id));
             await fetchRegions();
-            alert("지역이 삭제되었습니다.");
+            toast.success("지역이 삭제되었습니다.");
         } catch (error) {
             console.error("Failed to delete region:", error);
-            alert("지역 삭제에 실패했습니다.");
+            toast.error("지역 삭제에 실패했습니다.");
         }
     };
 
@@ -93,7 +94,7 @@ export default function RegionsPage() {
             ));
         } catch (error) {
             console.error("Failed to toggle region:", error);
-            alert("상태 변경에 실패했습니다.");
+            toast.error("상태 변경에 실패했습니다.");
         }
     };
 
@@ -112,10 +113,10 @@ export default function RegionsPage() {
             }
 
             await fetchRegions();
-            alert("초기 데이터가 생성되었습니다.");
+            toast.success("초기 데이터가 생성되었습니다.");
         } catch (error) {
             console.error("Failed to initialize regions:", error);
-            alert("초기화에 실패했습니다.");
+            toast.error("초기화에 실패했습니다.");
         }
     };
 
@@ -211,8 +212,8 @@ export default function RegionsPage() {
                                         <div className="flex items-center gap-2">
                                             <span className="font-semibold">{region.label}</span>
                                             <span className={`text-xs px-2 py-0.5 rounded-full ${region.isActive
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-gray-200 text-gray-600'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-gray-200 text-gray-600'
                                                 }`}>
                                                 {region.isActive ? '활성' : '비활성'}
                                             </span>

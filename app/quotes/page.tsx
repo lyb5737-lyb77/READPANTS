@@ -9,6 +9,7 @@ import { useAuthStore } from "@/lib/store/auth-store";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Lock, FileText, CheckCircle2, Circle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 function QuoteListPageContent() {
     const searchParams = useSearchParams();
@@ -41,7 +42,7 @@ function QuoteListPageContent() {
 
     const handleQuoteClick = (quote: Quote) => {
         if (!user) {
-            alert("로그인이 필요합니다.");
+            toast.error("로그인이 필요합니다.");
             router.push("/login?redirect=/quotes");
             return;
         }
@@ -53,7 +54,7 @@ function QuoteListPageContent() {
         if (isAdmin || isAuthor) {
             router.push(`/quotes/${quote.id}`);
         } else {
-            alert("비공개 글입니다. 작성자와 관리자만 볼 수 있습니다.");
+            toast.warning("비공개 글입니다. 작성자와 관리자만 볼 수 있습니다.");
         }
     };
 

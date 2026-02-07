@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminYoutubeEditPage() {
     const router = useRouter();
@@ -30,7 +31,7 @@ export default function AdminYoutubeEditPage() {
             if (!id) return;
             const channel = await getYoutubeChannel(id);
             if (!channel) {
-                alert("채널을 찾을 수 없습니다.");
+                toast.error("채널을 찾을 수 없습니다.");
                 router.push("/admin/youtube");
                 return;
             }
@@ -61,11 +62,11 @@ export default function AdminYoutubeEditPage() {
                 rank: type === 'ranking' ? Number(rank) : undefined,
                 description: desc,
             });
-            alert("수정되었습니다.");
+            toast.success("수정되었습니다.");
             router.push("/admin/youtube");
         } catch (error) {
             console.error(error);
-            alert("수정 실패");
+            toast.error("수정 실패");
         } finally {
             setSaving(false);
         }

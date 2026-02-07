@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2, Calendar, DollarSign, Users, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import { getCourses } from "@/lib/db/courses";
 import { getJoin, updateJoin } from "@/lib/db/joins";
 import { Course } from "@/lib/courses-data";
@@ -57,7 +58,7 @@ export default function EditJoinPage() {
                 // Fetch join data
                 const joinData = await getJoin(joinId);
                 if (!joinData) {
-                    alert("조인을 찾을 수 없습니다.");
+                    toast.error("조인을 찾을 수 없습니다.");
                     router.push("/admin/joins");
                     return;
                 }
@@ -78,7 +79,7 @@ export default function EditJoinPage() {
                 setValue("description", joinData.description || "");
             } catch (error) {
                 console.error("Error fetching data:", error);
-                alert("데이터를 불러오는 중 오류가 발생했습니다.");
+                toast.error("데이터를 불러오는 중 오류가 발생했습니다.");
             } finally {
                 setInitialLoading(false);
             }
@@ -120,10 +121,10 @@ export default function EditJoinPage() {
                 setValue("currentMembers", current + 1);
             }
 
-            alert("상태가 변경되었습니다.");
+            toast.success("상태가 변경되었습니다.");
         } catch (error) {
             console.error("Error updating status:", error);
-            alert("오류가 발생했습니다.");
+            toast.error("오류가 발생했습니다.");
         }
     };
 
@@ -139,11 +140,11 @@ export default function EditJoinPage() {
                 description: data.description || "",
             });
 
-            alert("조인이 수정되었습니다.");
+            toast.success("조인이 수정되었습니다.");
             router.push("/admin/joins");
         } catch (error) {
             console.error("Error updating join:", error);
-            alert("조인 수정 중 오류가 발생했습니다.");
+            toast.error("조인 수정 중 오류가 발생했습니다.");
         } finally {
             setLoading(false);
         }

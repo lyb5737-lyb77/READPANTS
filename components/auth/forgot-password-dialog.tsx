@@ -15,6 +15,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function ForgotPasswordDialog() {
     const [email, setEmail] = useState("");
@@ -26,15 +27,15 @@ export function ForgotPasswordDialog() {
         setLoading(true);
         try {
             await sendPasswordResetEmail(auth, email);
-            alert("비밀번호 재설정 이메일을 보냈습니다. 이메일을 확인해주세요.");
+            toast.success("비밀번호 재설정 이메일을 보냈습니다. 이메일을 확인해주세요.");
             setOpen(false);
             setEmail("");
         } catch (error: any) {
             console.error("Error sending password reset email:", error);
             if (error.code === "auth/user-not-found") {
-                alert("가입되지 않은 이메일입니다.");
+                toast.warning("가입되지 않은 이메일입니다.");
             } else {
-                alert("이메일 전송 중 오류가 발생했습니다.");
+                toast.error("이메일 전송 중 오류가 발생했습니다.");
             }
         } finally {
             setLoading(false);

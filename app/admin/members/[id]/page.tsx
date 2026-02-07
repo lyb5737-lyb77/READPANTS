@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2, User, Save, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 import { getUser, updateUser, UserProfile } from "@/lib/db/users";
 import { COMMUNITY_LEVELS, calculateCommunityLevel, calculateGolfSkillLevel } from "@/lib/constants/levels";
@@ -72,12 +73,12 @@ export default function MemberEditPage({ params }: PageProps) {
                 golfSkillLevel: calculateGolfSkillLevel(data.avgScore).level,
                 role: data.role as 'user' | 'admin',
             });
-            alert("회원 정보가 수정되었습니다.");
+            toast.success("회원 정보가 수정되었습니다.");
             router.push("/admin/members");
             router.refresh();
         } catch (error) {
             console.error("Error updating user:", error);
-            alert("회원 정보 수정 중 오류가 발생했습니다.");
+            toast.error("회원 정보 수정 중 오류가 발생했습니다.");
         } finally {
             setLoading(false);
         }
@@ -96,14 +97,14 @@ export default function MemberEditPage({ params }: PageProps) {
             const result = await updateUserPassword(userId, newPassword);
 
             if (result.success) {
-                alert("비밀번호가 변경되었습니다.");
+                toast.success("비밀번호가 변경되었습니다.");
                 setNewPassword("");
             } else {
-                alert("비밀번호 변경 실패: " + result.error);
+                toast.error("비밀번호 변경 실패: " + result.error);
             }
         } catch (error) {
             console.error("Error changing password:", error);
-            alert("비밀번호 변경 중 오류가 발생했습니다.");
+            toast.error("비밀번호 변경 중 오류가 발생했습니다.");
         } finally {
             setPasswordLoading(false);
         }

@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Textarea } from "@/components/ui/textarea";
 import { sendNotification } from "@/lib/db/notifications";
 import { MessageSquare } from "lucide-react";
+import { toast } from "sonner";
 
 export default function MembersPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -26,12 +27,12 @@ export default function MembersPage() {
         setSending(true);
         try {
             await sendNotification(selectedUser.uid, message, 'notice');
-            alert("메시지가 전송되었습니다.");
+            toast.success("메시지가 전송되었습니다.");
             setSelectedUser(null);
             setMessage("");
         } catch (error) {
             console.error("Failed to send message:", error);
-            alert("메시지 전송 실패");
+            toast.error("메시지 전송 실패");
         } finally {
             setSending(false);
         }

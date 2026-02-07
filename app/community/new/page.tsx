@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { createPost } from "@/lib/community";
 import { addPoints } from "@/lib/ranking";
 import { useAuthStore } from "@/lib/store/auth-store";
+import { toast } from "sonner";
 
 export default function NewPostPage() {
     const [title, setTitle] = useState("");
@@ -22,13 +23,13 @@ export default function NewPostPage() {
         e.preventDefault();
 
         if (!user) {
-            alert("로그인이 필요합니다.");
+            toast.error("로그인이 필요합니다.");
             router.push("/login");
             return;
         }
 
         if (!title.trim() || !content.trim()) {
-            alert("제목과 내용을 모두 입력해주세요.");
+            toast.warning("제목과 내용을 모두 입력해주세요.");
             return;
         }
 
@@ -40,7 +41,7 @@ export default function NewPostPage() {
             router.push("/community");
         } catch (error) {
             console.error("Failed to create post", error);
-            alert("게시글 작성에 실패했습니다.");
+            toast.error("게시글 작성에 실패했습니다.");
         } finally {
             setIsSubmitting(false);
         }

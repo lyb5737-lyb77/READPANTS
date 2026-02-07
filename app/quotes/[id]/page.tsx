@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, User, Info, CheckCircle2, DollarSign } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 import { ko } from "date-fns/locale";
 
 export default function QuoteDetailPage() {
@@ -69,7 +70,7 @@ export default function QuoteDetailPage() {
 
     const handleAdminReply = async () => {
         if (!replyContent.trim()) {
-            alert("답변 내용을 입력해주세요.");
+            toast.warning("답변 내용을 입력해주세요.");
             return;
         }
 
@@ -88,10 +89,10 @@ export default function QuoteDetailPage() {
                 }
             }) : null);
 
-            alert("답변이 등록되었습니다.");
+            toast.success("답변이 등록되었습니다.");
         } catch (e) {
             console.error(e);
-            alert("오류가 발생했습니다.");
+            toast.error("오류가 발생했습니다.");
         } finally {
             setReplyLoading(false);
         }

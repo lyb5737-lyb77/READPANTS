@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Loader2, X, Image as ImageIcon, MapPin, Flag, Clock, Info } from 'lucide-react';
 import { GolfCourse } from '@/types/golf-course';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
     name: z.string().min(1, "골프장 이름은 필수입니다."),
@@ -154,7 +155,7 @@ export default function GolfCourseFormPage(props: PageProps) {
             setImages(prev => [...prev, ...newImageUrls]);
         } catch (error) {
             console.error("Image upload failed:", error);
-            alert("이미지 업로드에 실패했습니다.");
+            toast.error("이미지 업로드에 실패했습니다.");
         } finally {
             setUploading(false);
         }
@@ -203,7 +204,7 @@ export default function GolfCourseFormPage(props: PageProps) {
             router.refresh();
         } catch (error) {
             console.error("Error saving course:", error);
-            alert("저장 중 오류가 발생했습니다.");
+            toast.error("저장 중 오류가 발생했습니다.");
         } finally {
             setLoading(false);
         }

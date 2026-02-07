@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { MessageSquare, CheckCircle, Clock, CheckSquare } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 
 export default function AdminRequestsPage() {
@@ -52,10 +53,10 @@ export default function AdminRequestsPage() {
             await fetchRequests();
             setSelectedRequest(null);
             setReplyMessage("");
-            alert("답변이 전송되었습니다.");
+            toast.success("답변이 전송되었습니다.");
         } catch (error) {
             console.error("Failed to reply:", error);
-            alert("답변 전송 중 오류가 발생했습니다.");
+            toast.error("답변 전송 중 오류가 발생했습니다.");
         } finally {
             setReplying(false);
         }

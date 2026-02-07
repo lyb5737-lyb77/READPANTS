@@ -8,6 +8,7 @@ import { useAuthStore } from "@/lib/store/auth-store";
 import { sendNotification } from "@/lib/db/notifications";
 import { useRouter } from "next/navigation";
 import { MessageSquare } from "lucide-react";
+import { toast } from "sonner";
 
 export function AdminInquiryDialog({ children }: { children: React.ReactNode }) {
     const { user } = useAuthStore();
@@ -41,12 +42,12 @@ export function AdminInquiryDialog({ children }: { children: React.ReactNode }) 
 
             await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network request
 
-            alert("문의가 접수되었습니다. 관리자가 확인 후 답변 드리겠습니다.");
+            toast.success("문의가 접수되었습니다. 관리자가 확인 후 답변 드리겠습니다.");
             setIsOpen(false);
             setMessage("");
         } catch (error) {
             console.error("Failed to send inquiry:", error);
-            alert("문의 전송 중 오류가 발생했습니다.");
+            toast.error("문의 전송 중 오류가 발생했습니다.");
         } finally {
             setSending(false);
         }

@@ -12,6 +12,7 @@ import { addPoints } from "@/lib/ranking";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { formatDistanceToNow, format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { toast } from "sonner";
 
 export default function PostDetailPage() {
     const params = useParams();
@@ -48,7 +49,7 @@ export default function PostDetailPage() {
     const handleCommentSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) {
-            alert("로그인이 필요합니다.");
+            toast.error("로그인이 필요합니다.");
             router.push("/login");
             return;
         }
@@ -68,7 +69,7 @@ export default function PostDetailPage() {
 
         } catch (error) {
             console.error("Failed to add comment", error);
-            alert("댓글 작성에 실패했습니다.");
+            toast.error("댓글 작성에 실패했습니다.");
         } finally {
             setSubmittingComment(false);
         }
@@ -82,7 +83,7 @@ export default function PostDetailPage() {
             router.push("/community");
         } catch (error) {
             console.error("Failed to delete post", error);
-            alert("게시글 삭제에 실패했습니다.");
+            toast.error("게시글 삭제에 실패했습니다.");
         }
     };
 

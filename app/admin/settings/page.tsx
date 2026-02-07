@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings as SettingsIcon, Save } from "lucide-react";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
     const [settings, setSettings] = useState({
@@ -14,7 +15,7 @@ export default function SettingsPage() {
     });
 
     const handleSave = () => {
-        alert("설정이 저장되었습니다.");
+        toast.success("설정이 저장되었습니다.");
     };
 
     return (

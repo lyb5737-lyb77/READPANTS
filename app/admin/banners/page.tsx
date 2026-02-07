@@ -8,6 +8,7 @@ import { Plus, Trash2, Edit, ExternalLink, ArrowUp, ArrowDown } from "lucide-rea
 import { getBanners, deleteBanner, updateBanner, Banner } from "@/lib/db/banners";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function AdminBannersPage() {
     const [banners, setBanners] = useState<Banner[]>([]);
@@ -35,9 +36,10 @@ export default function AdminBannersPage() {
         try {
             await deleteBanner(id, imageUrl);
             setBanners(banners.filter(b => b.id !== id));
+            toast.success("배너가 삭제되었습니다.");
         } catch (error) {
             console.error("Failed to delete banner:", error);
-            alert("배너 삭제 중 오류가 발생했습니다.");
+            toast.error("배너 삭제 중 오류가 발생했습니다.");
         }
     };
 
@@ -162,8 +164,8 @@ export default function AdminBannersPage() {
                                         <button
                                             onClick={() => handleToggleActive(banner)}
                                             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${banner.isActive
-                                                    ? "bg-green-100 text-green-700 hover:bg-green-200"
-                                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                                ? "bg-green-100 text-green-700 hover:bg-green-200"
+                                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                                 }`}
                                         >
                                             {banner.isActive ? "노출중" : "숨김"}

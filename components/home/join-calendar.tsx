@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useRegionStore } from "@/lib/store/region-store";
 import { createCustomRequest } from "@/lib/db/custom-requests";
+import { toast } from "sonner";
 import { getJoins } from "@/lib/db/joins";
 import { getCourses } from "@/lib/db/courses";
 import { useRouter } from "next/navigation";
@@ -151,10 +152,10 @@ export function JoinCalendar() {
             });
             setIsDialogOpen(false);
             setFormData({ courseName: "", date: "", time: "", people: "", memo: "" });
-            alert("요청이 성공적으로 접수되었습니다!");
+            toast.success("요청이 성공적으로 접수되었습니다!");
         } catch (error) {
             console.error("Failed to submit request:", error);
-            alert("요청 접수 중 오류가 발생했습니다.");
+            toast.error("요청 접수 중 오류가 발생했습니다.");
         } finally {
             setSubmitLoading(false);
         }

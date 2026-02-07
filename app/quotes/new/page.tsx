@@ -10,6 +10,7 @@ import { useAuthStore } from "@/lib/store/auth-store";
 import { createQuote, VEHICLE_TYPES, VehicleType } from "@/lib/db/quotes";
 import { getCourses } from "@/lib/db/courses";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 // Mock Data for Accommodations (Since we don't have DB for it yet)
 const ACCOMMODATIONS = {
@@ -82,18 +83,18 @@ function NewQuotePageContent() {
         e.preventDefault();
 
         if (!user) {
-            alert("로그인이 필요합니다.");
+            toast.error("로그인이 필요합니다.");
             router.push("/login?redirect=/quotes/new");
             return;
         }
 
         if (selectedCourses.length === 0) {
-            alert("골프장을 최소 1개 이상 선택해주세요.");
+            toast.warning("골프장을 최소 1개 이상 선택해주세요.");
             return;
         }
 
         if (!content.trim()) {
-            alert("세부 일정을 입력해주세요.");
+            toast.warning("세부 일정을 입력해주세요.");
             return;
         }
 
@@ -111,11 +112,11 @@ function NewQuotePageContent() {
                 content
             });
 
-            alert("견적 요청이 등록되었습니다. 관리자 확인 후 답변 드리겠습니다.");
+            toast.success("견적 요청이 등록되었습니다. 관리자 확인 후 답변 드리겠습니다.");
             router.push("/quotes");
         } catch (error) {
             console.error("Failed to create quote:", error);
-            alert("견적 요청 등록에 실패했습니다.");
+            toast.error("견적 요청 등록에 실패했습니다.");
         } finally {
             setLoading(false);
         }

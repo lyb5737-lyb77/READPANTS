@@ -18,6 +18,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { format, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { toast } from "sonner";
 import {
     Dialog,
     DialogContent,
@@ -151,14 +152,10 @@ export default function CalendarDatePage({ params }: { params: Promise<{ date: s
                 }
             }
 
-            alert('조 편성이 완료되었고, 참가자들에게 알림이 발송되었습니다!');
-            setTeamDialogOpen(false);
-
-            // 페이지 새로고침
-            window.location.reload();
+            toast.success('조 편성이 완료되었고, 참가자들에게 알림이 발송되었습니다!');
         } catch (error) {
             console.error('Error assigning teams:', error);
-            alert('조 편성 중 오류가 발생했습니다.');
+            toast.error('조 편성 중 오류가 발생했습니다.');
         } finally {
             setAssigning(false);
         }
