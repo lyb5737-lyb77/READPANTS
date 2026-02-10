@@ -20,56 +20,15 @@ export default async function RecentJoins({
     country?: string;
     region?: string;
 }) {
-    // console.log('==========================================');
-    // console.log('[RecentJoins] Props received:');
-    // console.log('  - country:', country, '(type:', typeof country, ')');
-    // console.log('  - region:', region, '(type:', typeof region, ')');
-    // console.log('==========================================');
-
     let joinsWithCourse: any[] = [];
 
     try {
         const allJoins = await getJoins(undefined, 100);
-        // console.log('[RecentJoins] Total joins from DB:', allJoins.length);
 
-        // Log each join's country and region
-        // allJoins.forEach((join, index) => {
-        //     console.log(`[RecentJoins] Join ${index + 1}:`, {
-        //         id: join.id,
-        //         courseName: join.courseName,
-        //         country: join.country,
-        //         region: join.region,
-        //         countryType: typeof join.country,
-        //         regionType: typeof join.region,
-        //     });
-        // });
-
-        // 선택된 지역의 조인만 필터링
         const filteredJoins = allJoins.filter((join) => {
-            const countryMatch = join.country === country;
-            const regionMatch = join.region === region;
-            const overallMatch = countryMatch && regionMatch;
-
-            // console.log(`[RecentJoins] Filtering ${join.courseName}:`, {
-            //     joinCountry: join.country,
-            //     expectedCountry: country,
-            //     countryMatch,
-            //     joinRegion: join.region,
-            //     expectedRegion: region,
-            //     regionMatch,
-            //     overallMatch
-            // });
-
-            return overallMatch;
+            return join.country === country && join.region === region;
         }).slice(0, 7);
 
-        // console.log('==========================================');
-        // console.log('[RecentJoins] Filtered joins count:', filteredJoins.length);
-        // console.log('[RecentJoins] Filtered join names:', filteredJoins.map(j => j.courseName));
-        // console.log('==========================================');
-
-
-        // Fetch course details for each join
         joinsWithCourse = await Promise.all(
             filteredJoins.map(async (join) => {
                 try {
@@ -83,11 +42,11 @@ export default async function RecentJoins({
         );
     } catch (error) {
         console.error("Failed to fetch recent joins:", error);
-        return null; // Return null to hide the section on error
+        return null;
     }
 
     if (joinsWithCourse.length === 0) {
-        return null; // Don't show section if no joins
+        return null;
     }
 
     let courses: any[] = [];

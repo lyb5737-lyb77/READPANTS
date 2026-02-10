@@ -66,6 +66,26 @@ export function RegionSelector() {
                             flagUrl: FLAG_URLS[data.country] || "https://flagcdn.com/w40/un.png",
                         });
                     });
+
+                    // Sort regions: Vietnam Haiphong -> Thailand Pattaya -> Vietnam Danang
+                    const sortOrder = [
+                        "Vietnam-Haiphong",
+                        "Thailand-Pattaya",
+                        "Vietnam-Danang"
+                    ];
+
+                    fetchedRegions.sort((a, b) => {
+                        const keyA = `${a.country}-${a.region}`;
+                        const keyB = `${b.country}-${b.region}`;
+                        const indexA = sortOrder.indexOf(keyA);
+                        const indexB = sortOrder.indexOf(keyB);
+
+                        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                        if (indexA !== -1) return -1;
+                        if (indexB !== -1) return 1;
+                        return 0; // Keep original order for others
+                    });
+
                     setRegions(fetchedRegions);
                 }
             } catch (error) {
@@ -148,8 +168,8 @@ export function RegionSelector() {
                                         : "outline"
                                 }
                                 className={`w-full justify-start text-left h-auto py-3 ${!region.isActive
-                                        ? 'opacity-50 cursor-not-allowed bg-gray-100 hover:bg-gray-100'
-                                        : ''
+                                    ? 'opacity-50 cursor-not-allowed bg-gray-100 hover:bg-gray-100'
+                                    : ''
                                     }`}
                                 onClick={() => handleSelectRegion(region.country, region.region, region.isActive)}
                                 disabled={!region.isActive}

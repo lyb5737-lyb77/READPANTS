@@ -18,6 +18,8 @@ export interface CustomRequest {
     time: string;
     people: string;
     memo: string;
+    accommodationId?: string;
+    accommodationName?: string;
     status: 'pending' | 'replied' | 'completed';
     createdAt: string; // ISO string
     replyMessage?: string; // Optional: store reply directly or link via notification

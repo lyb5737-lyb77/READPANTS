@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -10,10 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { createCustomRequest } from "@/lib/db/custom-requests";
 import { useRouter } from "next/navigation";
-import { Calendar as CalendarIcon, Users, MapPin } from "lucide-react";
+import { Calendar as CalendarIcon, Users, MapPin, ExternalLink } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Course } from "@/lib/courses-data";
 import { toast } from "sonner";
+import { getAccommodations } from "@/lib/db/accommodations";
+import { Accommodation } from "@/types/accommodation";
 
 interface CustomRequestCardProps {
     courses?: Course[];
@@ -29,8 +31,21 @@ export function CustomRequestCard({ courses = [] }: CustomRequestCardProps) {
         date: "",
         time: "",
         people: "",
-        memo: ""
+        memo: "",
+        accommodationId: "",
+        accommodationName: ""
     });
+    const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
+
+    useEffect(() => {
+        if (isOpen) {
+            const fetchAccommodations = async () => {
+                const data = await getAccommodations();
+                setAccommodations(data);
+            };
+            fetchAccommodations();
+        }
+    }, [isOpen]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,7 +62,15 @@ export function CustomRequestCard({ courses = [] }: CustomRequestCardProps) {
                 userName: user.displayName || ""
             });
             setIsOpen(false);
-            setFormData({ courseName: "", date: "", time: "", people: "", memo: "" });
+            setFormData({
+                courseName: "",
+                date: "",
+                time: "",
+                people: "",
+                memo: "",
+                accommodationId: "",
+                accommodationName: ""
+            });
             toast.success("요청이 성공적으로 접수되었습니다. 관리자가 확인 후 알림을 보내드립니다.");
         } catch (error) {
             console.error("Failed to submit request:", error);
@@ -130,6 +153,47 @@ export function CustomRequestCard({ courses = [] }: CustomRequestCardProps) {
                             </SelectContent>
                         </Select>
                     </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="accommodation">희망 숙소 (선택)</Label>
+                        <div className="flex gap-2">
+                            <Select
+                                value={formData.accommodationId}
+                                onValueChange={(value) => {
+                                    const selected = accommodations.find(a => a.id === value);
+                                    setFormData({
+                                        ...formData,
+                                        accommodationId: value,
+                                        accommodationName: selected?.name || ""
+                                    });
+                                }}
+                            >
+                                <SelectTrigger id="accommodation" className="flex-1">
+                                    <SelectValue placeholder="숙소를 선택해주세요" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">선택 안함</SelectItem>
+                                    {accommodations.map((acc) => (
+                                        <SelectItem key={acc.id} value={acc.id}>
+                                            {acc.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {formData.accommodationId && formData.accommodationId !== "none" && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => window.open(`/accommodations/${formData.accommodationId}`, '_blank')}
+                                    title="숙소 상세 보기"
+                                >
+                                    <ExternalLink className="w-4 h-4" />
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="grid gap-2">
                         <Label htmlFor="date">희망 날짜</Label>
                         <Input

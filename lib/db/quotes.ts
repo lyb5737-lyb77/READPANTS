@@ -35,7 +35,8 @@ export interface Quote {
     region: string;
 
     golfCourses: string[]; // List of course names or IDs
-    accommodation: string;
+    accommodation: string; // Name of the accommodation
+    accommodationId?: string; // ID of the accommodation (optional, for linking)
     vehicleType: VehicleType;
 
     content: string; // Detailed itinerary

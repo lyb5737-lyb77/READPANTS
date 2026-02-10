@@ -5,10 +5,11 @@ import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Users, LayoutDashboard, Settings, LogOut, Map, Hotel, UserCog, Utensils, Menu, X, MessageSquare, Globe, Youtube } from "lucide-react";
+import { Users, LayoutDashboard, Settings, LogOut, Map, Hotel, UserCog, Utensils, Menu, X, MessageSquare, Globe, Youtube, Clipboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { auth } from "@/lib/firebase";
 import { isAdmin } from "@/lib/db/users";
+import { getOperationsPosts } from "@/lib/db/operations-board";
 
 export default function AdminLayout({
     children,
@@ -19,6 +20,7 @@ export default function AdminLayout({
     const router = useRouter();
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
 
 
 
@@ -32,6 +34,18 @@ export default function AdminLayout({
         // Real security should be in Firestore rules or Middleware (if using edge functions)
         // But for now, we trust the profile loaded from Firestore + the isAdmin logic.
     }, [user, loading, router]);
+
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            if (!user) return;
+            const posts = await getOperationsPosts();
+            const unread = posts.filter(p => !p.readBy.includes(user.uid));
+            setUnreadCount(unread.length);
+        };
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 60000); // Refresh every minute
+        return () => clearInterval(interval);
+    }, [user]);
 
     if (loading) {
         return (
@@ -51,7 +65,9 @@ export default function AdminLayout({
         { name: "골프 조인 관리", href: "/admin/joins", icon: Users },
         { name: "커뮤니티 관리", href: "/admin/community", icon: Users },
         { name: "커스텀 요청 관리", href: "/admin/requests", icon: MessageSquare },
+        { name: "운영 게시판", href: "/admin/operations", icon: Clipboard, badge: unreadCount },
         { name: "골프장 관리", href: "/admin/resources", icon: Map },
+        { name: "숙소 관리", href: "/admin/accommodations", icon: Hotel },
         { name: "지역 관리", href: "/admin/regions", icon: Globe },
         { name: "배너 관리", href: "/admin/banners", icon: LayoutDashboard }, // Added Banner Management
         { name: "유튜브 관리", href: "/admin/youtube", icon: Youtube },
@@ -103,7 +119,12 @@ export default function AdminLayout({
                             )}
                         >
                             <item.icon className="w-5 h-5" />
-                            {item.name}
+                            <span className="flex-1">{item.name}</span>
+                            {item.badge && item.badge > 0 && (
+                                <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5 min-w-[20px] text-center">
+                                    {item.badge}
+                                </span>
+                            )}
                         </Link>
                     ))}
                 </nav>

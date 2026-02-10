@@ -9,29 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuthStore } from "@/lib/store/auth-store";
 import { createQuote, VEHICLE_TYPES, VehicleType } from "@/lib/db/quotes";
 import { getCourses } from "@/lib/db/courses";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { getAccommodations } from "@/lib/db/accommodations";
+import { Accommodation } from "@/types/accommodation";
+import { ArrowLeft, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-
-// Mock Data for Accommodations (Since we don't have DB for it yet)
-const ACCOMMODATIONS = {
-    'Thailand': {
-        'Pattaya': [
-            "시암 베이쇼어 리조트",
-            "케이프 다라 리조트",
-            "그랜드 팔라조 호텔",
-            "호텔 앰버 파타야",
-            "기타 (직접 입력)"
-        ]
-    },
-    'Vietnam': {
-        'Haiphong': [
-            "펄 리버 호텔",
-            "빈펄 리조트",
-            "소노 벨 하이퐁",
-            "기타 (직접 입력)"
-        ]
-    }
-};
 
 function NewQuotePageContent() {
     const router = useRouter();
@@ -47,10 +28,12 @@ function NewQuotePageContent() {
 
     // Data Loading
     const [availableCourses, setAvailableCourses] = useState<any[]>([]);
+    const [availableAccommodations, setAvailableAccommodations] = useState<Accommodation[]>([]);
 
     // Inputs
     const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
-    const [selectedAccommodation, setSelectedAccommodation] = useState("");
+    const [selectedAccommodationId, setSelectedAccommodationId] = useState("");
+    const [selectedAccommodationName, setSelectedAccommodationName] = useState("");
     const [selectedVehicle, setSelectedVehicle] = useState<VehicleType>('sedan');
     const [content, setContent] = useState("");
 
@@ -59,16 +42,23 @@ function NewQuotePageContent() {
         if (region === 'Haiphong') setCountry('Vietnam');
         else if (region === 'Pattaya') setCountry('Thailand');
 
-        const fetchCourses = async () => {
+        const fetchData = async () => {
             try {
+                // Fetch Courses
                 const allCourses = await getCourses();
-                const filtered = allCourses.filter(c => c.region === region || c.country === country);
-                setAvailableCourses(filtered.length > 0 ? filtered : allCourses);
+                const filteredCourses = allCourses.filter(c => c.region === region || c.country === country);
+                setAvailableCourses(filteredCourses.length > 0 ? filteredCourses : allCourses);
+
+                // Fetch Accommodations
+                const allAccommodations = await getAccommodations();
+                const filteredAccommodations = allAccommodations.filter(a => a.region === region || a.country === country);
+                setAvailableAccommodations(filteredAccommodations);
+
             } catch (e) {
                 console.error(e);
             }
         };
-        fetchCourses();
+        fetchData();
     }, [region, country]);
 
     const handleCourseToggle = (courseName: string) => {
@@ -107,7 +97,8 @@ function NewQuotePageContent() {
                 country,
                 region,
                 golfCourses: selectedCourses,
-                accommodation: selectedAccommodation,
+                accommodation: selectedAccommodationName || "숙소 필요 없음 (직접 예약)",
+                accommodationId: selectedAccommodationId !== "not_needed" ? selectedAccommodationId : undefined,
                 vehicleType: selectedVehicle,
                 content
             });
@@ -121,9 +112,6 @@ function NewQuotePageContent() {
             setLoading(false);
         }
     };
-
-    // Helper to safe access accommodations
-    const currentAccommodations = ACCOMMODATIONS[country as keyof typeof ACCOMMODATIONS]?.[region as keyof typeof ACCOMMODATIONS['Thailand']] || [];
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -171,17 +159,45 @@ function NewQuotePageContent() {
                             <label className="text-base font-bold text-gray-900 block">
                                 희망 숙소 <span className="text-red-500">*</span>
                             </label>
-                            <Select value={selectedAccommodation} onValueChange={setSelectedAccommodation}>
-                                <SelectTrigger className="h-12 text-base">
-                                    <SelectValue placeholder="숙소를 선택해주세요" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {currentAccommodations.map((acc, idx) => (
-                                        <SelectItem key={idx} value={acc}>{acc}</SelectItem>
-                                    ))}
-                                    <SelectItem value="not_needed">숙소 필요 없음 (직접 예약)</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <div className="flex gap-2">
+                                <Select
+                                    value={selectedAccommodationId}
+                                    onValueChange={(value) => {
+                                        setSelectedAccommodationId(value);
+                                        if (value === "not_needed") {
+                                            setSelectedAccommodationName("숙소 필요 없음 (직접 예약)");
+                                        } else {
+                                            const selected = availableAccommodations.find(a => a.id === value);
+                                            setSelectedAccommodationName(selected ? selected.name : "");
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger className="h-12 text-base flex-1">
+                                        <SelectValue placeholder="숙소를 선택해주세요" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="not_needed">숙소 필요 없음 (직접 예약)</SelectItem>
+                                        {availableAccommodations.map((acc) => (
+                                            <SelectItem key={acc.id} value={acc.id}>
+                                                {acc.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                {selectedAccommodationId && selectedAccommodationId !== "not_needed" && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-12 w-12 shrink-0 border-gray-200"
+                                        onClick={() => window.open(`/accommodations/${selectedAccommodationId}`, '_blank')}
+                                        title="숙소 상세 보기"
+                                    >
+                                        <ExternalLink className="w-5 h-5 text-gray-600" />
+                                    </Button>
+                                )}
+                            </div>
                         </div>
 
                         {/* 3. Vehicle */}
