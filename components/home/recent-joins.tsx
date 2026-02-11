@@ -33,10 +33,12 @@ export default async function RecentJoins({
             filteredJoins.map(async (join) => {
                 try {
                     const course = await getCourse(join.courseId);
-                    return { ...join, course };
+                    const dDay = Math.ceil((new Date(join.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                    return { ...join, course, dDay };
                 } catch (e) {
                     console.error(`Failed to fetch course for join ${join.id}`, e);
-                    return { ...join, course: null };
+                    const dDay = Math.ceil((new Date(join.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                    return { ...join, course: null, dDay };
                 }
             })
         );
@@ -86,14 +88,9 @@ export default async function RecentJoins({
                                         <span className="text-sm">이미지 없음</span>
                                     </div>
                                 )}
-                                {(() => {
-                                    const dDay = Math.ceil((new Date(join.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                                    return (
-                                        <div className={`absolute top-4 right-4 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm ${dDay < 0 ? "bg-gray-800/90 text-white" : "bg-white/90 text-red-600"}`}>
-                                            {dDay < 0 ? "마감" : dDay === 0 ? "D-Day" : `D-${dDay}`}
-                                        </div>
-                                    );
-                                })()}
+                                <div className={`absolute top-4 right-4 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm ${join.dDay < 0 ? "bg-gray-800/90 text-white" : "bg-white/90 text-red-600"}`}>
+                                    {join.dDay < 0 ? "마감" : join.dDay === 0 ? "D-Day" : `D-${join.dDay}`}
+                                </div>
                             </div>
 
                             {/* Content Section */}

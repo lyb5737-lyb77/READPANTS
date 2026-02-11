@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useRegionStore } from "@/lib/store/region-store";
 import { createCustomRequest } from "@/lib/db/custom-requests";
+import { BackgroundSlider } from "@/components/ui/background-slider";
 import { toast } from "sonner";
 import { getJoins } from "@/lib/db/joins";
 import { getCourses } from "@/lib/db/courses";
@@ -339,26 +340,32 @@ export function JoinCalendar() {
     };
 
     return (
-        <section className="relative pt-16 pb-12 md:pt-20 md:pb-20 overflow-hidden bg-gradient-to-b from-red-50 via-pink-50/50 to-purple-50/30">
-            {/* Background decorations */}
-            <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-red-100 rounded-full blur-3xl opacity-50 animate-pulse" />
-            <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-96 h-96 bg-green-100 rounded-full blur-3xl opacity-50" />
-
+        <section className="relative pt-16 pb-12 md:pt-20 md:pb-20 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
             <div className="container px-4 md:px-6 relative z-10">
-                {/* Hero Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-3 py-1 text-sm font-medium text-red-600 mb-4">
-                        <span className="flex h-2 w-2 rounded-full bg-red-600 mr-2 animate-pulse"></span>
-                        지금 가장 핫한 동남아 골프 조인
+                {/* Hero Header with Background */}
+                <div className="relative text-center mb-8 rounded-3xl overflow-hidden">
+                    {/* Background Slider - 텍스트 영역만 */}
+                    <BackgroundSlider />
+
+                    {/* Background decorations - subtle glow effect */}
+                    <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-white rounded-full blur-3xl opacity-10 animate-pulse z-[2]" />
+                    <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-96 h-96 bg-white rounded-full blur-3xl opacity-10 z-[2]" />
+
+                    {/* Content */}
+                    <div className="relative z-10 py-12 md:py-16">
+                        <div className="inline-flex items-center rounded-full border border-white/30 bg-white/10 backdrop-blur-sm px-3 py-1 text-sm font-medium text-white mb-4 shadow-lg">
+                            <span className="flex h-2 w-2 rounded-full bg-white mr-2 animate-pulse"></span>
+                            지금 가장 핫한 동남아 골프 조인
+                        </div>
+                        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight mb-4 drop-shadow-2xl">
+                            혼자라도 괜찮아, <br className="hidden sm:inline" />
+                            <span className="text-yellow-300">빨간바지</span>와 함께라면!
+                        </h1>
+                        <p className="max-w-[700px] mx-auto text-base md:text-lg text-white/95 mb-0 drop-shadow-lg">
+                            설레는 해외 라운딩, 낯선 곳에서의 특별한 만남. <br className="hidden sm:inline" />
+                            검증된 매너 골퍼들과 함께 안전하고 즐거운 여행을 떠나보세요.
+                        </p>
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight mb-4">
-                        혼자라도 괜찮아, <br className="hidden sm:inline" />
-                        <span className="text-primary">빨간바지</span>와 함께라면!
-                    </h1>
-                    <p className="max-w-[700px] mx-auto text-base md:text-lg text-gray-600 mb-8">
-                        설레는 해외 라운딩, 낯선 곳에서의 특별한 만남. <br className="hidden sm:inline" />
-                        검증된 매너 골퍼들과 함께 안전하고 즐거운 여행을 떠나보세요.
-                    </p>
                 </div>
 
                 {/* Calendar Header */}

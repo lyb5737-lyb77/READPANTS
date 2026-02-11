@@ -49,7 +49,7 @@ function HeaderContent() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
-            <div className="container flex h-20 items-center justify-between px-4 md:px-6">
+            <div className="max-w-[1400px] mx-auto flex h-20 items-center justify-between px-4 md:px-6">
                 <div className="flex items-center gap-3">
                     <Link href={getLinkWithParams("/")} className="flex items-center gap-2">
                         <motion.img
