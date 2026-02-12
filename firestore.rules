@@ -141,5 +141,10 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if false;
     }
+    // Hotel Rooms: Public read, Admin write
+    match /hotel_rooms/{roomId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }

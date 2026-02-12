@@ -15,6 +15,7 @@ export async function getAccommodations(): Promise<Accommodation[]> {
 }
 
 export async function getAccommodation(id: string): Promise<Accommodation | null> {
+    if (!id) return null;
     const docRef = doc(db, COLLECTION_NAME, id);
     const docSnap = await getDoc(docRef);
 

@@ -34,20 +34,44 @@ export interface Quote {
     country: string;
     region: string;
 
-    golfCourses: string[]; // List of course names or IDs
-    accommodation: string; // Name of the accommodation
-    accommodationId?: string; // ID of the accommodation (optional, for linking)
-    vehicleType: VehicleType;
+    // Dates
+    startDate: string | Date; // Timestamp or ISO string
+    endDate: string | Date;
+    nights: number;
+    days: number;
 
-    content: string; // Detailed itinerary
+    // Transport & Pax
+    arrivalAirport: string; // 하노이 / 하이퐁
+    pickupService: 'none' | 'pickup' | 'sending' | 'roundtrip'; // 필요없음 / 픽업 / 샌딩 / 왕복(혹시 몰라 추가) -> UI에서 선택 
+    numberOfMen: number;
+    numberOfWomen: number;
+    totalPeople: number;
 
-    status: 'pending' | 'replied' | 'completed';
+    // Accommodation
+    // Accommodation
+    accommodationType: string; // 'direct' or accommodation.id (e.g. 'sunflower')
+    roomType?: string; // Room type name if applicable
+
+    // Golf
+    golfRounds: number; // 0 ~ N 회
+
+    // Payment
+    paymentMethod: 'onsite' | 'online'; // 체크인시 결제 / 온라인 전액 결제
+
+    // Content (User extra request)
+    content: string;
+
+    status: 'pending' | 'replied' | 'payment_pending' | 'completed'; // 결제대기 상태 추가
 
     adminComment?: {
         content: string;
-        price?: number; // Estimated price
+        price?: number;
         repliedAt: string;
     };
+
+    totalAmount?: number; // 최종 견적 금액
+
+    userPhone: string; // 연락처
 
     createdAt: string;
     updatedAt: string;
@@ -123,17 +147,41 @@ export async function createQuote(quote: Omit<Quote, "id" | "createdAt" | "updat
 export async function replyQuote(id: string, comment: string, price?: number): Promise<void> {
     try {
         const docRef = doc(db, COLLECTION_NAME, id);
-        await updateDoc(docRef, {
+
+        const updateData: any = {
             status: 'replied',
             adminComment: {
                 content: comment,
                 price: price,
-                repliedAt: new Date().toISOString() // Or serverTimestamp if we handle type conversion
+                repliedAt: new Date().toISOString()
             },
+            updatedAt: serverTimestamp()
+        };
+
+        if (price !== undefined) {
+            updateData.totalAmount = price;
+            // If price is set, maybe we can move to payment? But usually user needs to confirm.
+            // For now, let's keep it 'replied' or maybe 'payment_pending' if admin sets the final price.
+            // Let's stick to 'replied' and let the user see the price and then proceed to payment action if we implement that flow.
+            // However, user request says: "답변완료가되면 총금액을 결제할수있는 버튼이 나타남".
+        }
+
+        await updateDoc(docRef, updateData);
+    } catch (error) {
+        console.error("Error replying to quote:", error);
+        throw error;
+    }
+}
+
+export async function updateQuoteStatus(id: string, status: Quote['status']): Promise<void> {
+    try {
+        const docRef = doc(db, COLLECTION_NAME, id);
+        await updateDoc(docRef, {
+            status: status,
             updatedAt: serverTimestamp()
         });
     } catch (error) {
-        console.error("Error replying to quote:", error);
+        console.error("Error updating quote status:", error);
         throw error;
     }
 }

@@ -10,13 +10,14 @@ import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Lock, FileText, CheckCircle2, Circle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 function QuoteListPageContent() {
     const searchParams = useSearchParams();
     // Although quotes are usually private, we show a list to indicate activity.
     // We can filter by country/region if needed, but requirements say "Menu between Reviews and Guide".
     // I will assume global list or region based if query param exists.
-    const region = searchParams.get('region') || 'Pattaya';
+    const region = searchParams.get('region') || '';
     const { user, userProfile } = useAuthStore();
     const router = useRouter();
 
@@ -118,15 +119,15 @@ function QuoteListPageContent() {
                                             >
                                                 <td className="px-6 py-4 text-center">
                                                     {quote.status === 'replied' || quote.status === 'completed' ? (
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 whitespace-nowrap">
                                                             <CheckCircle2 className="w-3 h-3 mr-1" />
                                                             답변완료
-                                                        </span>
+                                                        </Badge>
                                                     ) : (
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                            <Circle className="w-3 h-3 mr-1 fill-gray-400 text-gray-400" />
+                                                        <Badge variant="outline" className="bg-gray-50 text-gray-500 border-gray-200 whitespace-nowrap">
+                                                            <Circle className="w-3 h-3 mr-1 fill-gray-200 text-gray-400" />
                                                             대기중
-                                                        </span>
+                                                        </Badge>
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4 text-center font-medium text-gray-600">
@@ -135,7 +136,7 @@ function QuoteListPageContent() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
                                                         <span className="font-medium text-gray-900 line-clamp-1">
-                                                            {quote.country} {quote.region} - {quote.vehicleType.toUpperCase()} 차량 및 숙소 견적 요청합니다.
+                                                            {quote.country} {quote.region} - {quote.nights}박 {quote.days}일 여행 견적 요청합니다.
                                                         </span>
                                                         <Lock className="w-3 h-3 text-gray-400 shrink-0" />
                                                     </div>
@@ -181,15 +182,15 @@ function QuoteListPageContent() {
                                     className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 active:scale-[0.98] transition-all"
                                 >
                                     <div className="flex justify-between items-start mb-3">
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 items-center">
                                             {quote.status === 'replied' || quote.status === 'completed' ? (
-                                                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-red-100 text-red-600">
+                                                <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 whitespace-nowrap">
                                                     답변완료
-                                                </span>
+                                                </Badge>
                                             ) : (
-                                                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-500">
+                                                <Badge variant="outline" className="bg-gray-50 text-gray-500 border-gray-200 whitespace-nowrap">
                                                     대기중
-                                                </span>
+                                                </Badge>
                                             )}
                                             <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-600">
                                                 {quote.region}
@@ -202,7 +203,7 @@ function QuoteListPageContent() {
 
                                     <h3 className="text-base font-bold text-gray-900 mb-3 flex items-start gap-2">
                                         <span className="line-clamp-2">
-                                            {quote.country} {quote.region} - {quote.vehicleType.toUpperCase()} 차량 및 숙소 견적 요청합니다.
+                                            {quote.country} {quote.region} - {quote.nights}박 {quote.days}일 여행 견적 요청합니다.
                                         </span>
                                         <Lock className="w-3.5 h-3.5 text-gray-400 mt-1 shrink-0" />
                                     </h3>

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Users, LayoutDashboard, Settings, LogOut, Map, Hotel, UserCog, Utensils, Menu, X, MessageSquare, Globe, Youtube, Clipboard } from "lucide-react";
+import { Users, LayoutDashboard, Settings, LogOut, Map, Hotel, UserCog, Utensils, Menu, X, MessageSquare, Globe, Youtube, Clipboard, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { auth } from "@/lib/firebase";
 import { isAdmin } from "@/lib/db/users";
@@ -64,6 +64,7 @@ export default function AdminLayout({
         { name: "회원 정보 관리", href: "/admin/members", icon: UserCog },
         { name: "골프 조인 관리", href: "/admin/joins", icon: Users },
         { name: "커뮤니티 관리", href: "/admin/community", icon: Users },
+        { name: "여행 견적 관리", href: "/admin/quotes", icon: Calculator }, // Added Quotes Management
         { name: "커스텀 요청 관리", href: "/admin/requests", icon: MessageSquare },
         { name: "운영 게시판", href: "/admin/operations", icon: Clipboard, badge: unreadCount },
         { name: "골프장 관리", href: "/admin/resources", icon: Map },
