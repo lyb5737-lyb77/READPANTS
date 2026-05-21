@@ -75,7 +75,7 @@ export default function LoginPage() {
             <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl border shadow-lg">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-900">로그인</h1>
-                    <p className="mt-2 text-gray-600">빨간바지 솔로 골프에 오신 것을 환영합니다.</p>
+                    <p className="mt-2 text-gray-600"><img src="/gts/GTS1.png" alt="GTS" className="h-5 inline-block object-contain -mt-1 mr-1" /> 골프에 오신 것을 환영합니다.</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">

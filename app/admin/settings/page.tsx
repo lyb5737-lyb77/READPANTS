@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 export default function SettingsPage() {
     const [settings, setSettings] = useState({
-        siteName: "빨간바지 솔로 골프",
+        siteName: "GTS 골프",
         adminEmail: "",
         maxJoinMembers: "4",
     });

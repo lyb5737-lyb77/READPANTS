@@ -7,7 +7,7 @@ export function Footer() {
             <div className="container px-4 md:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                     <div className="space-y-4">
-                        <h3 className="text-xl font-bold text-white">빨간바지 <span className="text-red-500">솔로 골프</span></h3>
+                        <div className="flex items-center gap-2"><img src="/gts/GTS1.png" alt="GTS" className="h-8 object-contain" /><h3 className="text-xl font-bold text-white"><span className="text-red-500">골프</span></h3></div>
                         <p className="text-sm text-gray-400">
                             혼자라도 즐거운 골프 여행.<br />
                             검증된 동반자와 함께 떠나는<br />

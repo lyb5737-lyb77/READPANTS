@@ -8,8 +8,8 @@ export function Header() {
             <div className="container flex h-16 items-center justify-between px-4 md:px-6">
                 <div className="flex items-center gap-2">
                     <Link href="/" className="flex items-center gap-2">
-                        <span className="text-xl font-bold text-red-600">빨간바지</span>
-                        <span className="hidden sm:inline-block font-semibold text-gray-900">솔로 골프</span>
+                        <img src="/gts/GTS1.png" alt="GTS" className="h-8 object-contain" />
+                        <span className="hidden sm:inline-block font-semibold text-gray-900">골프</span>
                     </Link>
                 </div>
 

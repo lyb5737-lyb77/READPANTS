@@ -359,7 +359,12 @@ export function JoinCalendar() {
                         </div>
                         <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight mb-4 drop-shadow-2xl">
                             혼자라도 괜찮아, <br className="hidden sm:inline" />
-                            <span className="text-yellow-300">빨간바지</span>와 함께라면!
+                            <img 
+                                src="/gts/GTS1.png" 
+                                alt="GTS" 
+                                className="h-10 md:h-12 inline-block object-contain -mt-2 md:-mt-3 mr-1" 
+                                style={{ filter: "drop-shadow(1px 1px 0 rgba(255,255,255,0.8)) drop-shadow(-1px -1px 0 rgba(255,255,255,0.8)) drop-shadow(1px -1px 0 rgba(255,255,255,0.8)) drop-shadow(-1px 1px 0 rgba(255,255,255,0.8))" }}
+                            />와 함께라면!
                         </h1>
                         <p className="max-w-[700px] mx-auto text-base md:text-lg text-white/95 mb-0 drop-shadow-lg">
                             설레는 해외 라운딩, 낯선 곳에서의 특별한 만남. <br className="hidden sm:inline" />

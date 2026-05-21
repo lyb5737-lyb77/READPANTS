@@ -32,7 +32,7 @@ export default async function CoursesPage({
                     제휴 골프장 소개
                 </h1>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                    빨간바지 솔로 골프가 엄선한 {region} 지역의 명문 골프장을 소개합니다.
+                    <img src="/gts/GTS1.png" alt="GTS" className="h-6 inline-block object-contain -mt-1 mr-1" /> 골프가 엄선한 {region} 지역의 명문 골프장을 소개합니다.
                 </p>
             </div>
 

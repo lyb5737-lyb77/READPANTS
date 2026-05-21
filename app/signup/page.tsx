@@ -165,7 +165,7 @@ export default function SignupPage() {
             <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl border shadow-lg">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-900">회원가입</h1>
-                    <p className="mt-2 text-gray-600">빨간바지 솔로 골프의 회원이 되어보세요.</p>
+                    <p className="mt-2 text-gray-600"><img src="/gts/GTS1.png" alt="GTS" className="h-5 inline-block object-contain -mt-1 mr-1" /> 골프의 회원이 되어보세요.</p>
                 </div>
 
                 {!isGoogleSignup ? (

@@ -67,10 +67,10 @@ function HeaderContent() {
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center gap-8">
                     {[
+                        { href: "/quotes", label: "QUOTES", subLabel: "여행 견적" },
                         { href: "/join", label: "GOLF JOIN", subLabel: "골프 조인" },
                         { href: "/courses", label: "COURSES", subLabel: "골프장 소개" },
                         { href: "/reviews", label: "REVIEWS", subLabel: region ? `${region === 'Pattaya' ? '파타야' : region === 'Haiphong' ? '하이퐁' : region} 탐방 후기` : "이용 후기" },
-                        { href: "/quotes", label: "QUOTES", subLabel: "여행 견적" },
                         { href: "/guide", label: "GUIDE", subLabel: "이용 가이드" },
                     ].map((item) => (
                         <Link
@@ -288,10 +288,10 @@ function HeaderContent() {
                         {/* Navigation Grid - 2 columns */}
                         <nav className="grid grid-cols-2 gap-2">
                             {[
+                                { href: "/quotes", icon: FileText, label: "여행 견적", color: "text-purple-600", bg: "bg-purple-50" },
                                 { href: "/join", icon: Users, label: "골프 조인", color: "text-blue-600", bg: "bg-blue-50" },
                                 { href: "/courses", icon: MapPin, label: "골프장 소개", color: "text-green-600", bg: "bg-green-50" },
                                 { href: "/reviews", icon: Star, label: region === 'Pattaya' ? '파타야 후기' : region === 'Haiphong' ? '하이퐁 후기' : '탐방 후기', color: "text-yellow-600", bg: "bg-yellow-50" },
-                                { href: "/quotes", icon: FileText, label: "여행 견적", color: "text-purple-600", bg: "bg-purple-50" },
                                 { href: "/guide", icon: HelpCircle, label: "이용 가이드", color: "text-cyan-600", bg: "bg-cyan-50" },
                                 { href: "/premium", icon: Sparkles, label: "VIP룸", color: "text-amber-600", bg: "bg-amber-50" },
                             ].map((item) => (

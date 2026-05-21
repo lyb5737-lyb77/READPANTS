@@ -359,7 +359,7 @@ export default function QuoteDetailPage() {
                                         </div>
 
                                         <div className="flex justify-between items-center text-sm text-gray-500 pt-2 border-t border-red-100/50">
-                                            <span>담당자: 빨간바지 투어</span>
+                                            <span>담당자: <img src="/gts/GTS1.png" alt="GTS" className="h-4 inline-block object-contain -mt-0.5 mx-1" /> 투어</span>
                                             <span>답변일: {formatDistanceToNow(new Date(quote.adminComment?.repliedAt || ""), { addSuffix: true, locale: ko })}</span>
                                         </div>
                                     </div>

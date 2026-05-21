@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "빨간바지 솔로 골프",
-  description: "해외 골프 조인 및 여행의 모든 것, 빨간바지 솔로 골프",
+  title: "GTS 골프",
+  description: "해외 골프 조인 및 여행의 모든 것, GTS 골프",
 };
 
 

@@ -38,7 +38,7 @@ export default function GuidePage() {
                     이용 가이드
                 </h1>
                 <p className="text-lg text-gray-600">
-                    빨간바지 솔로 골프를 100% 즐기는 방법을 알려드립니다.
+                    <img src="/gts/GTS1.png" alt="GTS" className="h-6 inline-block object-contain -mt-1 mr-1" /> 골프를 100% 즐기는 방법을 알려드립니다.
                 </p>
             </div>
 

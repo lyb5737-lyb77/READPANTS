@@ -66,7 +66,7 @@ export default async function Home({
               </div>
               <h3 className="text-xl font-bold mb-2">엄선된 해외 골프장</h3>
               <p className="text-gray-500">
-                빨간바지 MD가 직접 검증한 동남아 명문 골프장과 리조트를 소개합니다.
+                <img src="/gts/GTS1.png" alt="GTS" className="h-5 inline-block object-contain -mt-1 mr-1" /> MD가 직접 검증한 동남아 명문 골프장과 리조트를 소개합니다.
               </p>
             </div>
 
@@ -106,7 +106,7 @@ export default async function Home({
                   <span className="text-red-400">무엇이든 물어보세요!</span>
                 </h2>
                 <p className="text-gray-300 text-lg">
-                  빨간바지 솔로 골프 이용 방법부터 조인 매칭까지,<br className="hidden sm:inline" />
+                  <img src="/gts/GTS1.png" alt="GTS" className="h-5 inline-block object-contain -mt-1 mr-1" /> 골프 이용 방법부터 조인 매칭까지,<br className="hidden sm:inline" />
                   관리자가 친절하게 답변해 드립니다.
                 </p>
               </div>

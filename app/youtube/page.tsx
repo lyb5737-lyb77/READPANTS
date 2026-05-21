@@ -61,7 +61,7 @@ export default function YoutubePage() {
 
                     <p className="text-gray-300 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed">
                         필드 위 잊지 못할 순간들, 생생한 골프 투어 영상.<br />
-                        빨간바지 공식 유튜브 채널이 곧 오픈됩니다.
+                        <img src="/gts/GTS1.png" alt="GTS" className="h-6 inline-block object-contain -mt-1 mr-1" /> 공식 유튜브 채널이 곧 오픈됩니다.
                     </p>
 
                     <Button className="h-12 px-8 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-lg shadow-xl shadow-red-900/20 transition-all hover:scale-105">
