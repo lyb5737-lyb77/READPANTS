@@ -122,6 +122,35 @@ export async function getReviews(options: GetReviewsOptions = {}): Promise<Revie
     }
 }
 
+export async function getReview(id: string): Promise<Review | null> {
+    try {
+        const docRef = doc(db, COLLECTION_NAME, id);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) return null;
+
+        const data = docSnap.data();
+        return {
+            id: docSnap.id,
+            ...data,
+            createdAt: data.createdAt?.toDate?.().toISOString() || new Date().toISOString(),
+            updatedAt: data.updatedAt?.toDate?.().toISOString() || new Date().toISOString(),
+        } as Review;
+    } catch (error) {
+        console.error("Error fetching review:", error);
+        return null;
+    }
+}
+
+export async function deleteReview(id: string): Promise<void> {
+    try {
+        await deleteDoc(doc(db, COLLECTION_NAME, id));
+    } catch (error) {
+        console.error("Error deleting review:", error);
+        throw error;
+    }
+}
+
 export async function createReview(review: Omit<Review, "id" | "createdAt" | "updatedAt" | "likes" | "likeCount">, imageFiles: File[]): Promise<string> {
     try {
         const imageUrls: string[] = [];

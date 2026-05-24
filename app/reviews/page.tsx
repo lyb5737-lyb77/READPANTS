@@ -185,7 +185,9 @@ function ReviewsPageContent() {
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     transition={{ duration: 0.2 }}
                                 >
-                                    <ReviewCard review={review} />
+                                    <Link href={`/reviews/${review.id}`}>
+                                        <ReviewCard review={review} />
+                                    </Link>
                                 </motion.div>
                             ))}
                         </AnimatePresence>

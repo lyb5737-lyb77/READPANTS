@@ -43,11 +43,12 @@ export function SplashScreen() {
                     style={{ pointerEvents: showSplash ? 'auto' : 'none' }}
                 >
                     <motion.img
-                        layoutId="main-logo"
-                        src="/images/logo-v2.png"
-                        alt="Red Pants Logo"
+                        src="/gts/GTS1.png"
+                        alt="GTS Logo"
                         className="relative w-48 h-48 object-contain"
-                        transition={{ duration: 0.8, ease: "easeInOut" }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                     />
                 </motion.div>
             )}

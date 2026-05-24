@@ -8,7 +8,10 @@ export async function getCourses(): Promise<Course[]> {
     const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
     const courses: Course[] = [];
     querySnapshot.forEach((doc) => {
-        courses.push(doc.data() as Course);
+        const data = doc.data();
+        if (data.createdAt?.toDate) data.createdAt = data.createdAt.toDate().toISOString();
+        if (data.updatedAt?.toDate) data.updatedAt = data.updatedAt.toDate().toISOString();
+        courses.push({ id: doc.id, ...data } as Course);
     });
     return courses;
 }
@@ -18,7 +21,10 @@ export async function getCourse(id: string): Promise<Course | null> {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-        return docSnap.data() as Course;
+        const data = docSnap.data();
+        if (data.createdAt?.toDate) data.createdAt = data.createdAt.toDate().toISOString();
+        if (data.updatedAt?.toDate) data.updatedAt = data.updatedAt.toDate().toISOString();
+        return { id: docSnap.id, ...data } as Course;
     } else {
         return null;
     }
@@ -31,6 +37,11 @@ export async function createCourse(course: Course): Promise<void> {
 export async function updateCourse(id: string, data: Partial<Course>): Promise<void> {
     const docRef = doc(db, COLLECTION_NAME, id);
     await updateDoc(docRef, data);
+}
+
+export async function deleteCourse(id: string): Promise<void> {
+    const { deleteDoc } = await import('firebase/firestore');
+    await deleteDoc(doc(db, COLLECTION_NAME, id));
 }
 
 export async function getCoursesCount(): Promise<number> {

@@ -33,7 +33,7 @@ const formSchema = z.object({
     caddyTip: z.string().optional(),
     cartInfo: z.string().optional(),
     galleryFee: z.string().optional(),
-    galleryAvailable: z.boolean().default(true),
+    galleryAvailable: z.preprocess((val) => val === 'true' || val === true, z.boolean()).default(true),
 
     description: z.string().optional(),
     address: z.string().optional(),
@@ -217,6 +217,11 @@ export default function GolfCourseFormPage(props: PageProps) {
     // Render content only if params are loaded (for new page params might be empty, handled by isEditMode check)
     if (!params && isEditMode) return null;
 
+    const onInvalid = (errors: any) => {
+        console.error("Validation failed:", errors);
+        toast.error("입력 항목을 확인해주세요. (필수 항목 등 누락)");
+    };
+
     return (
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
@@ -226,7 +231,7 @@ export default function GolfCourseFormPage(props: PageProps) {
                 <Button variant="ghost" onClick={() => router.back()}>취소</Button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-8">
 
                 {/* 기본 정보 섹션 */}
                 <Card>
@@ -295,8 +300,9 @@ export default function GolfCourseFormPage(props: PageProps) {
                             {errors.region && <p className="text-xs text-red-500">{errors.region.message}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="holes">홀 수</Label>
+                            <Label htmlFor="holes">홀 수 <span className="text-red-500">*</span></Label>
                             <Input id="holes" type="number" {...register("holes")} />
+                            {errors.holes && <p className="text-xs text-red-500">{errors.holes.message}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="yards">전장 (Yards)</Label>

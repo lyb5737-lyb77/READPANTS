@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getCourses } from '@/lib/db/courses';
+import { getCourses, deleteCourse } from '@/lib/db/courses';
+import { toast } from 'sonner';
 import { Course } from '@/lib/courses-data';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -87,6 +88,20 @@ export default function GolfCourseListPage() {
         const firstRegion = regions.find(r => r.country === country);
         if (firstRegion) {
             setSelectedRegion(firstRegion.region);
+        }
+    };
+
+    const handleDelete = async (courseId: string) => {
+        if (!courseId) return;
+        if (!window.confirm("정말 이 골프장을 삭제하시겠습니까? 관련 데이터도 모두 삭제될 수 있습니다.")) return;
+        
+        try {
+            await deleteCourse(courseId);
+            setCourses(prev => prev.filter(c => c.id !== courseId));
+            toast.success("골프장이 성공적으로 삭제되었습니다.");
+        } catch (error) {
+            console.error("Error deleting course:", error);
+            toast.error("골프장 삭제 중 오류가 발생했습니다.");
         }
     };
 
@@ -202,7 +217,12 @@ export default function GolfCourseListPage() {
                                             <Pencil className="w-3 h-3" /> 수정
                                         </Button>
                                     </Link>
-                                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        onClick={() => handleDelete(course.id!)}
+                                    >
                                         <Trash className="w-3 h-3" />
                                     </Button>
                                 </div>

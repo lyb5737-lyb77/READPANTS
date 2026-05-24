@@ -17,6 +17,7 @@ export function Footer() {
                         <h3 className="font-bold text-gray-800 text-sm mb-1.5">GTS VINA CO.,LTD ( Golf & Tour Service Vietman )</h3>
                         
                         <p>Vietnam Business Registration Number : 0202334213 (Mã số doanh nghiệp)</p>
+                        <p>International Tour Operator Licence No 31-0130/2026</p>
                         <p>Service Center : 1F, No.149 Van Cao Str, Dang Giang Ward, Ngo Quyen Dist, Hai Phong City, Vietnam</p>
                         <p>Head office : 405, 4th Floor, EIC Hai Phong Building, No. 1/10B Le Hong Phong Street, Hai An Ward, Hai Phong City, Vietnam</p>
                         <p>
